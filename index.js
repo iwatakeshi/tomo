@@ -8,7 +8,7 @@ const Path = require('path');
 const scanner = new Scanner(File.readFileSync(Path.join(__dirname, 'src/Token.js'), 'utf8'));
 
 
-function isES5Keyword (string) {
+function isKeyword (string) {
   return /\b(as|async|await|break|case|catch|class|const|continue|debugger|default|delete|do|else|enum|export|extends|finally|for|from|function|get|if|implements|import|in|instanceof|interface|let|new|null|of|package|private|protected|public|return|set|static|super|switch|this|throw|try|typeof|var|void|while|with|yield)\b/.test(string);
 }
 
@@ -21,7 +21,7 @@ const scan = {
         character = this.peekChar ();
       } while (this.isLetter(character) || character == '_' || character == '$');
       
-      if (isES5Keyword (buffer)){
+      if (isKeyword (buffer)){
         return new Token ('keyword', buffer, this.toJSON());
       } 
       return new Token ('identifer', buffer, this.toJSON());
