@@ -1,0 +1,32 @@
+{
+  "name": "cherry",
+  "version": "1.0.0",
+  "description": "A small generic parser written in JavaScript.",
+  "main": "index.js",
+  "scripts": {
+    "start": "gulp && node index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/iwatakeshi/cherry.git"
+  },
+  "keywords": [
+    "parser",
+    "generic",
+    "language",
+    "acorn",
+    "esprima"
+  ],
+  "author": "iwatakeshi",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/iwatakeshi/cherry/issues"
+  },
+  "homepage": "https://github.com/iwatakeshi/cherry#readme",
+  "devDependencies": {
+    "babel-preset-es2015": "^6.0.11",
+    "gulp": "^3.9.0",
+    "gulp-babel": "^6.0.0"
+  }
+}
