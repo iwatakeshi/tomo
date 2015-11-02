@@ -98,4 +98,8 @@ export default class TokenStream {
   toBuffer () {
     return this._stack;
   }
+
+  toJSON () {
+    return JSON.parse(JSON.stringify(this._stack));
+  }
 }

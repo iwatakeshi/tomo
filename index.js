@@ -62,7 +62,7 @@ const scan = {
         }
         character = this.peekChar ();
       }
-      if (this.nextChar () == this.EOF) {
+      if (this.nextChar () === this.EOF) {
         /* Throw error here */
       }
       return new Token ('string literal', buffer, this.toJSON());
@@ -84,5 +84,4 @@ function tokenizer (char) {
 
 
 const stream = scanner.scan(tokenizer);
-
-stream.toBuffer().forEach(token => console.log(token.toJSON()))
+console.log(JSON.stringify(stream.toJSON(), null, 2));
