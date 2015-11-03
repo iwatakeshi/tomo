@@ -3,11 +3,14 @@
 import Source from './Source';
 import TokenStream from './TokenStream';
 
-export default class Scanner extends Source {
-  constructor(source){
-    super(source);
+export default class Scanner {
+  constructor(source, options){
+    this._source = new Source(source);
     this._stringBuffer = '';
     this._isEOF = false;
+    this._options = {
+      whitespace : options.whitespace ? options.whitespace : false
+    };
   }
 
   set isEOF (truth) {
@@ -16,6 +19,14 @@ export default class Scanner extends Source {
 
   get isEOF () {
     return this._isEOF;
+  }
+
+  get source () {
+    return this._source;
+  }
+
+  get options () {
+    return this._options;
   }
 
   isWhiteSpace (char) {
@@ -33,7 +44,7 @@ export default class Scanner extends Source {
   scan (tokenizer) {
     const stream = new TokenStream();
     this.ignoreWhiteSpace();
-    while(this.peekChar() !== this.EOF) {
+    while(this.peekChar() !== this.source.EOF) {
       const token = this.nextToken(tokenizer);
       if(token) stream.addToken(token);
       this.ignoreWhiteSpace();
@@ -44,28 +55,28 @@ export default class Scanner extends Source {
   nextChar () {
     // If we are at the end or over the length
     // of the source then return EOF
-    if(this.position >= this.file.length) {
+    if(this.source.position >= this.file.length) {
       this.isEOF = true;
-      return this.EOF;
+      return this.source.EOF;
     }
     // If we reach a new line then
     // increment the line and reset the column
     // else increment the column
-    if(this.file[this.position] === '\n') {
-      this.line++;
-      this.column = 1;
-    } else this.column++;
-    return this.file[this.position++];
+    if(this.source.file[this.source.position] === '\n') {
+      this.source.line++;
+      this.source.column = 1;
+    } else this.source.column++;
+    return this.source.file[this.source.position++];
   }
 
   peekChar (peek) {
     // If we peek and the we reach the end or over
     // the length then return EOF
-    if (this.position + peek >= this.file.length){
+    if (this.source.position + peek >= this.source.file.length){
       this.isEOF = true;
-      return this.EOF;
+      return this.source.EOF;
     }
-    return this.file[this.position + (peek ? peek : 0)];
+    return this.source.file[this.source.position + (peek ? peek : 0)];
   }
 
   nextToken (tokenizer) {
@@ -76,8 +87,9 @@ export default class Scanner extends Source {
   }
 
   ignoreWhiteSpace () {
-    while(this.isWhiteSpace(this.peekChar())) {
-      this.nextChar();
-    }
+    if(!this.options.whitespace) 
+      while(this.isWhiteSpace(this.peekChar())) {
+        this.nextChar();
+      }
   }
 }

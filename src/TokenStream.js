@@ -4,7 +4,7 @@ import TokenType from './TokenType';
 import Token from './Token';
 
 export default class TokenStream {
-  constructor () {
+  constructor (options) {
     this._stack = [];
     this._position = 0;
   }
@@ -17,12 +17,15 @@ export default class TokenStream {
     return this._position;
   }
 
+  isEOS () {
+    return this.position > this._stack.length;
+  }
+
   addToken (token) {
     this._stack[this._stack.length] = token;
   }
 
   match (type, type2, value) {
-    if(type && (type instanceof TokenType)) {
 
       if(!type2) 
         return this.peekToken () !== undefined && 
@@ -38,12 +41,10 @@ export default class TokenStream {
         return this.peekToken () !== undefined &&
           this.peekToken ().type === type &&
           this.peekToken ().value === value;
-    }
+
   }
 
   accept (type, token, value) {
-    if(type && (type instanceof TokenType)) {
-
       if(!token && !value)
         if (this.peekToken () !== undefined && this.peekToken ().type === type) {
           this.scanToken ();
@@ -60,11 +61,9 @@ export default class TokenStream {
         this.scanToken ();
         return true;
       } else return false;
-    }
   }
 
   expect (type, value, source) {
-    if((type instanceof TokenType) && (typeof value === String) && source) {
       var token = this.peekToken ();
       if (this.accept(type, value)) {
         return token;
@@ -78,7 +77,6 @@ export default class TokenStream {
           `cherry [error: EOF]: ${ value } at line: ${ source.line }, position: ${ source.position }. Expected ${ type }`);
       }
       return new Token (type, "", source);
-    }
   }
 
   peekToken (peek) {

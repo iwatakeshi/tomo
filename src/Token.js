@@ -18,8 +18,12 @@ export default class Token {
     return this._source;
   }
 
+  toString () {
+    return `token: - type ${ this.type }, - value ${ this.value }`;
+  }
+
   toJSON () {
-    return Object.assign(this._source, {
+    return Object.assign(this._source.toJSON(), {
       "token": {
         "type": this.type,
         "value": this.value 
