@@ -71,7 +71,10 @@ const scan = {
       ch = this.peekChar();
     } while (isDigit(ch) || ch === '.');
 		// Create a new token and mark the end of the location
-    return new Token(TokenType.NumberLiteral, buffer.join(''), this.location().end());
+    return new Token(TokenType.Literal)
+      .prepend('number')
+      .setValue(buffer.join(''))
+      .setLocation(this.location().end());
 	}
 };
 
@@ -91,7 +94,6 @@ stream.forEach(s => console.log(JSON.stringify(s.toJSON(), null, 2));
  
 /* 
 	OUTPUT:
-	
 	{
 		"token": {
 			"type": {
@@ -107,6 +109,16 @@ stream.forEach(s => console.log(JSON.stringify(s.toJSON(), null, 2));
 				"end": {
 					"line": 1,
 					"column": 6
+				},
+				"range": {
+					"line": [
+						1,
+						1
+					],
+					"column": [
+						0,
+						6
+					]
 				}
 			}
 		}
@@ -126,6 +138,16 @@ stream.forEach(s => console.log(JSON.stringify(s.toJSON(), null, 2));
 				"end": {
 					"line": 1,
 					"column": 6
+				},
+				"range": {
+					"line": [
+						1,
+						1
+					],
+					"column": [
+						6,
+						6
+					]
 				}
 			}
 		}

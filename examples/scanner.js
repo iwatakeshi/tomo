@@ -43,17 +43,22 @@ const scan = {
     } while (isDigit(ch) || ch === '.');
     const location = this.location().end();
     if (!isFinite(parseFloat(buffer.join('')))) throw "Number is too large or too small for a 64-bit double.";
-    return new Token(TokenType.NumberLiteral, buffer.join(''), location);
+    return new Token(TokenType.Literal)
+      .prepend('number')
+      .setValue(buffer.join(''))
+      .setLocation(location);
   },
   'operator': function (ch) {
     this.nextChar();
-    return new Token(TokenType.Operator, ch, this.location().end()).append((()=>{
+    return new Token(TokenType.Operator, ch)
+    .setLocation(this.location().end())
+    .prepend((()=>{
       switch(ch) {
-        case '+': return 'Plus'; 
-        case '-': return 'Minus';
-        case '*': return 'Multiply'; 
-        case '/': return 'Divide';
-        case '=': return 'Assign';
+        case '+': return 'plus'; 
+        case '-': return 'minus';
+        case '*': return 'multiply'; 
+        case '/': return 'divide';
+        case '=': return 'assign';
       }
     })());
   },
@@ -92,10 +97,10 @@ stream.forEach(i => console.log(JSON.stringify(i.toJSON(), null, 2)));
 const expected = [
   Token.typeToString(TokenType.Reserved), 
   Token.typeToString(TokenType.Identifier),
-  Token.typeToString(TokenType.Operator, 'Assign'),
-  Token.typeToString(TokenType.NumberLiteral),
-  Token.typeToString(TokenType.Operator, 'Plus'),
-  Token.typeToString(TokenType.NumberLiteral),
+  Token.typeToString(TokenType.Operator, 'assign'),
+  Token.typeToString(TokenType.Literal, 'number'),
+  Token.typeToString(TokenType.Operator, 'plus'),
+  Token.typeToString(TokenType.Literal, 'number'),
   Token.typeToString(TokenType.End)
  ];
  

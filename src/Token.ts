@@ -6,13 +6,9 @@ module Tokenization {
     Identifier = 1,
     Reserved = 2,
     /** Literals */
-    NumberLiteral = 3,
-    IntLiteral = 4,
-    FloatLiteral = 5,
-    StringLiteral = 6,
-    CharacterLiteral = 7,
+    Literal = 3,
     /** Operator */
-    Operator = 8,
+    Operator = 4,
     /**
      * Other types
      */
@@ -26,32 +22,27 @@ module Tokenization {
     public type: TokenType;
     public value: string;
     public key: string ;
-    private range;
-    constructor (type: TokenType, value:string, range) {
+    private location;
+    constructor (type?: TokenType, value?:string, location?) {
       this.type = type;
       this.value = value;
-      this.range = range;
+      this.location = location;
     }
     public static typeToString(type, key) : string {
+      const normalize = (str:string) : string => {
+        return str[0].toUpperCase() + str.substring(1, str.length).toLowerCase();
+      };
       switch(type) {
         case TokenType.Identifier:
           return 'Indentifier';
         case TokenType.Reserved:
           return 'Reserved';
-        case TokenType.NumberLiteral:
-          return 'NumberLiteral';
-        case TokenType.IntLiteral:
-          return 'IntLiteral';
-        case TokenType.FloatLiteral:
-          return 'FloatLiteral';
-        case TokenType.StringLiteral:
-          return 'StringLiteral';
-        case TokenType.CharacterLiteral:
-          return 'CharacterLiteral';
+        case TokenType.Literal:
+          return normalize(key) + 'Literal';
         case TokenType.Operator:
-          return key + 'Operator';
+          return normalize(key) + 'Operator';
         case TokenType.Comment:
-          return key + 'Comment';
+          return normalize(key) + 'Comment';
         case TokenType.WhiteSpace:
           return 'WhiteSpace';
         case TokenType.Invalid:
@@ -64,8 +55,20 @@ module Tokenization {
      * Appends a detailed description to the specified type when
      * converting the type to string.
      */
-    public append(key = '') {
+    public prepend(key = '') {
       this.key = key;
+      return this;
+    }
+    public setType (type:TokenType) {
+      this.type = type;
+      return this;
+    }
+    public setLocation (location) {
+      this.location = location;
+      return this;
+    }
+    public setValue (value) {
+      this.value = value;
       return this;
     }
     /**
@@ -81,13 +84,20 @@ module Tokenization {
       return `token type: ${ this.type } - ${ this.typeToString() }, value: ${ this.value }`;
     }
     public toJSON () : {} {
+      let { start, end } = this.location;
+      start = start.toJSON();
+      end = end.toJSON();
       return  {
         token: {
           type: { key: this.type, value: this.typeToString() },
           value: this.value,
           location: {
-            start: this.range.start.toJSON(),
-            end: this.range.end.toJSON()
+            start: start,
+            end: end,
+            range: {
+              line: [start.line, end.line],
+              column: [start.column, end.column]
+            }
           }
         }
       };
