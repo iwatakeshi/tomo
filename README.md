@@ -45,7 +45,7 @@ into a stream which the it provides a few methods to access the tokens.
 The Token class provides the essentials to describe a scanned character. `Token.ts` exports two
 modules which is the `TokenType: enum`, and the Token class. See `Token.ts` 
 
-The Parser class (** Help Needed **) *should parse the tokens and return an AST*.
+The Parser class ( __Help Needed__ ) _should parse the tokens and return an AST_.
 
 
 ```javascript
