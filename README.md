@@ -89,32 +89,32 @@ stream.forEach(s => console.log(JSON.stringify(s.toJSON(), null, 2));
 	OUTPUT:
 	
 	{
-		"source": {
-			"line": 1,
-			"column": 18,
-			"position": 17
-		},
-		"token": {
-			"type": {
-				"key": 3,
-				"value": "NumberLiteral"
-			},
-			"value": "2"
-		}
+	  "source": {
+	    "line": 1,
+	    "column": 8,
+	    "position": 7
+	  },
+	  "token": {
+	    "type": {
+	      "key": 3,
+	      "value": "NumberLiteral"
+	    },
+	    "value": "123.45"
+	  }
 	}
 	{
-		"source": {
-			"line": 1,
-			"column": 18,
-			"position": 17
-		},
-		"token": {
-			"type": {
-				"key": 0,
-				"value": "End"
-			},
-			"value": "\u0000"
-		}
+	  "source": {
+	    "line": 1,
+	    "column": 8,
+	    "position": 7
+	  },
+	  "token": {
+	    "type": {
+	      "key": 0,
+	      "value": "End"
+	    },
+	    "value": "\u0000"
+	  }
 	}
 */
 
