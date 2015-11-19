@@ -5,7 +5,7 @@ Note: Not production ready and it's more like a toy for the moment.
 
 ## Background
 
-Cherry is a small generic lexer and parser that was started out of curiousity about how lexers and parsers work. In addition to my curiosity,
+Cherry is a small generic lexer and parser that started out of curiousity on how lexers and parsers work. In addition to my curiosity,
 a [discussion](https://github.com/mr-doc/mr-doc/issues/94) appeared on [Mr. Doc's](https://github.com/mr-doc/) issue about creating a parser that
 replaces Mr. Doc's current core ([Dox](https://github.com/tj/dox)). If this succeeds, it will mean that Mr. Doc can generate documentation for any language*.
 
