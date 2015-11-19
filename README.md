@@ -16,7 +16,7 @@ As of right now, the areas where I lack knowledge is in parsing and creating a s
 [source code for VSCode](https://github.com/Microsoft/vscode/blob/master/src/vs/languages/css/common/parser/cssSymbols.ts)). 
 From what I do know, parsing deals with Nodes and grammars. I've seen BNF for grammar but the only source that I found about transforming
 BNF to code [is written in Python](http://parsingintro.sourceforge.net/) which is an awkward language IMO. Therefore I am struggling to create
-a parser that is somewhat object oriented yet small enough for other to understand. If you have the time, please contact me and share your
+a parser that is somewhat object oriented yet small enough for others to understand. If you have the time, please contact me and share your
 great skills with me to make this project happen! :)
 
 \* It will depend on the parser.
