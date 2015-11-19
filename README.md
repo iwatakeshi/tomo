@@ -72,6 +72,7 @@ const scan = {
     } while (isDigit(ch) || ch === '.');
 		// Create a new token and mark the end of the location
     return new Token(TokenType.Literal)
+		// Preprend the type of literal.
       .prepend('number')
       .setValue(buffer.join(''))
       .setLocation(this.location().end());
