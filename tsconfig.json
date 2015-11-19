@@ -1,0 +1,31 @@
+{
+    "compilerOptions": {
+        "target": "es5",
+        "module": "umd",
+        "moduleResolution": "classic",
+        "isolatedModules": false,
+        "jsx": "react",
+        "experimentalDecorators": true,
+        "emitDecoratorMetadata": true,
+        "declaration": false,
+        "noImplicitAny": false,
+        "removeComments": true,
+        "noLib": false,
+        "preserveConstEnums": true,
+        "suppressImplicitAnyIndexErrors": true,
+        "sourceMap": false
+    },
+    "filesGlob": [
+        "./src/**/*.ts",
+        "./src/**/*.tsx",
+        "!node_modules/**"
+    ],
+    "files": [
+        "./src/Map.ts",
+        "./src/Parser.ts",
+        "./src/Scanner.ts",
+        "./src/Source.ts",
+        "./src/Token.ts",
+        "./src/Utils.ts"
+    ]
+}
