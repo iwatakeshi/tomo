@@ -7,8 +7,8 @@ class Location {
   }
   public toJSON () {
     return {
-		  line: Number(this.line),
-			column: Number(this.column)
+      line: Number(this.line),
+      column: Number(this.column)
     };
   }
 };
