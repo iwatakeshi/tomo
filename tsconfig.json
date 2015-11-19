@@ -26,6 +26,7 @@
         "./src/Scanner.ts",
         "./src/Source.ts",
         "./src/Token.ts",
-        "./src/Utils.ts"
+        "./src/Utils.ts",
+        "./src/Location.ts"
     ]
 }

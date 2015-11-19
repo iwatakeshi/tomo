@@ -61,6 +61,8 @@ const scanner = new Scanner(source);
 
 const scan = {
 	'number': function (ch) {
+		// Mark the beginning of the location
+		this.location().start();
 		let buffer = [];
     do {
       if (ch == '.')
@@ -68,7 +70,8 @@ const scan = {
       else buffer.push(this.nextChar());
       ch = this.peekChar();
     } while (isDigit(ch) || ch === '.');
-    return new Token(TokenType.NumberLiteral, buffer.join(''), this.source);
+		// Create a new token and mark the end of the location
+    return new Token(TokenType.NumberLiteral, buffer.join(''), this.location().end());
 	}
 };
 
@@ -78,7 +81,8 @@ const stream = scanner.scan(function(ch){
 		case '5': case '6': case '7': case '8': case '9':
 			return scan.number.call(this);
 		default:
-			return new Token(TokenType.EOF, '', this.source);
+			this.location.start();
+			return new Token(TokenType.EOF, '', this.location().eof());
 	}
 });
 
@@ -89,32 +93,42 @@ stream.forEach(s => console.log(JSON.stringify(s.toJSON(), null, 2));
 	OUTPUT:
 	
 	{
-	  "source": {
-	    "line": 1,
-	    "column": 8,
-	    "position": 7
-	  },
-	  "token": {
-	    "type": {
-	      "key": 3,
-	      "value": "NumberLiteral"
-	    },
-	    "value": "123.45"
-	  }
+		"token": {
+			"type": {
+				"key": 3,
+				"value": "NumberLiteral"
+			},
+			"value": "123.45",
+			"location": {
+				"start": {
+					"line": 1,
+					"column": 0
+				},
+				"end": {
+					"line": 1,
+					"column": 6
+				}
+			}
+		}
 	}
 	{
-	  "source": {
-	    "line": 1,
-	    "column": 8,
-	    "position": 7
-	  },
-	  "token": {
-	    "type": {
-	      "key": 0,
-	      "value": "End"
-	    },
-	    "value": "\u0000"
-	  }
+		"token": {
+			"type": {
+				"key": 0,
+				"value": "End"
+			},
+			"value": "\u0000",
+			"location": {
+				"start": {
+					"line": 1,
+					"column": 6
+				},
+				"end": {
+					"line": 1,
+					"column": 6
+				}
+			}
+		}
 	}
 */
 

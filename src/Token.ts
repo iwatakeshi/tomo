@@ -1,46 +1,5 @@
 'use strict';
 
-interface ObjectCtor extends ObjectConstructor {
-    assign(target: any, ...sources: any[]): any;
-}
-declare const Object: ObjectCtor;
-export let assign = Object.assign ? Object.assign : function(target: any, ...sources: any[]): any {
-        return;
-};
-
-if (!Object.assign) {
-  Object.defineProperty(Object, 'assign', {
-    enumerable: false,
-    configurable: true,
-    writable: true,
-    value: function(target) {
-      'use strict';
-      if (target === undefined || target === null) {
-        throw new TypeError('Cannot convert first argument to object');
-      }
-
-      let to = Object(target);
-      for (let i = 1; i < arguments.length; i++) {
-        let nextSource = arguments[i];
-        if (nextSource === undefined || nextSource === null) {
-          continue;
-        }
-        nextSource = Object(nextSource);
-
-        let keysArray = Object.keys(nextSource);
-        for (let nextIndex = 0, len = keysArray.length; nextIndex < len; nextIndex++) {
-          let nextKey = keysArray[nextIndex];
-          let desc = Object.getOwnPropertyDescriptor(nextSource, nextKey);
-          if (desc !== undefined && desc.enumerable) {
-            to[nextKey] = nextSource[nextKey];
-          }
-        }
-      }
-      return to;
-    }
-  });
-}
-
 module Tokenization {
   export enum TokenType {
     /** Identifiers */
@@ -66,12 +25,12 @@ module Tokenization {
   export class Token {
     public type: TokenType;
     public value: string;
-    public key = { operator: '', comment: ''} ;
-    private source;
-    constructor (type: TokenType, value:string, source) {
+    public key: string ;
+    private range;
+    constructor (type: TokenType, value:string, range) {
       this.type = type;
       this.value = value;
-      this.source = source;
+      this.range = range;
     }
     public static typeToString(type, key) : string {
       switch(type) {
@@ -90,9 +49,9 @@ module Tokenization {
         case TokenType.CharacterLiteral:
           return 'CharacterLiteral';
         case TokenType.Operator:
-          return (key.operator || key) + 'Operator';
+          return key + 'Operator';
         case TokenType.Comment:
-          return (key.comment || key) + 'Comment';
+          return key + 'Comment';
         case TokenType.WhiteSpace:
           return 'WhiteSpace';
         case TokenType.Invalid:
@@ -102,19 +61,12 @@ module Tokenization {
       }
     }
     /**
-     * Appends a detailed description to the operator type when
+     * Appends a detailed description to the specified type when
      * converting the type to string.
      */
-    public appendToOperator(key = '') {
-      this.key.operator = key;
+    public append(key = '') {
+      this.key = key;
       return this;
-    }
-    /**
-     * Appends a detailed description to the comment type when
-     * converting the type to string.
-     */
-    public appendToComment(key = '') {
-      this.key.comment = key;
     }
     /**
      * Converts type to string.
@@ -129,12 +81,16 @@ module Tokenization {
       return `token type: ${ this.type } - ${ this.typeToString() }, value: ${ this.value }`;
     }
     public toJSON () : {} {
-      return Object.assign(this.source.toJSON(), {
+      return  {
         token: {
           type: { key: this.type, value: this.typeToString() },
-          value: this.value
+          value: this.value,
+          location: {
+            start: this.range.start.toJSON(),
+            end: this.range.end.toJSON()
+          }
         }
-      });
+      };
     }
   }
 }

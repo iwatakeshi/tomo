@@ -17,7 +17,6 @@ const isOperator = function (c) { return /[+\-*\/\^%=(),]/.test(c); },
 const scan = {
   'identifier': function (ch) {
     if(isEOF(ch)) {
-      this.nextChar();
       return undefined;
     }
     const reserved = {'var': true, 'let': true };
@@ -26,11 +25,12 @@ const scan = {
       buffer.push(this.nextChar());
       ch = this.peekChar();
     } while (isLetter(ch) || isDigit(ch) || ch == '_' || ch == '$');
+    const location = this.location().end();
     if(buffer.length > 0){
       if(reserved[buffer.join('')])
-        return new Token(TokenType.Reserved, buffer.join(''), this.source);
+        return new Token(TokenType.Reserved, buffer.join(''), location);
       else
-       return new Token(TokenType.Identifier, buffer.join(''), this.source);
+       return new Token(TokenType.Identifier, buffer.join(''), location);
     } else return undefined;
   },
   'number': function (ch) {
@@ -41,12 +41,13 @@ const scan = {
       else buffer.push(this.nextChar());
       ch = this.peekChar();
     } while (isDigit(ch) || ch === '.');
+    const location = this.location().end();
     if (!isFinite(parseFloat(buffer.join('')))) throw "Number is too large or too small for a 64-bit double.";
-    return new Token(TokenType.NumberLiteral, buffer.join(''), this.source);
+    return new Token(TokenType.NumberLiteral, buffer.join(''), location);
   },
   'operator': function (ch) {
     this.nextChar();
-    return new Token(TokenType.Operator, ch, this.source).appendToOperator((()=>{
+    return new Token(TokenType.Operator, ch, this.location().end()).append((()=>{
       switch(ch) {
         case '+': return 'Plus'; 
         case '-': return 'Minus';
@@ -57,13 +58,13 @@ const scan = {
     })());
   },
   'end': function(ch) {
-    this.nextChar();
-    return new Token(TokenType.End, ch, this.source);
+    return new Token(TokenType.End, ch, this.location().eof());
   }
 };
 
 const scanner = new Scanner('var x = 1.35 + 2');
 const stream = scanner.scan(function (ch) {
+  this.location().start();
   switch (ch) {
     case '0': case '1':
     case '2': case '3':

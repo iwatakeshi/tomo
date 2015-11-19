@@ -2,6 +2,7 @@
 
 import Source from './Source';
 import Utils from './Utils';
+import Location from './Location';
 
 class Stream {
   private stream: Array<any>;
@@ -48,11 +49,17 @@ class Scanner {
   private options;
   private tokens: Array<any>;
   private stack: Array<any>;
+  private line: number;
+  private column: number;
+  private range: any;
   constructor(source, options = { ignore : { whitespace: false } }) {
     this.source = new Source(source);
     this.options = options;
     this.tokens = [];
     this.stack = [];
+    this.line = 1;
+    this.column = 0;
+    this.range = {};
   }
 
   public scan(tokenizer): Stream {
@@ -68,12 +75,30 @@ class Scanner {
     }
     return new Stream(this.tokens);
   }
+  public location () {
+    const { line, column } = this;
+    return {
+      start: () => {
+        this.range = {};
+        this.range.start = new Location(Number(line), Number(column));
+        return this.range;
+      },
+      end: () => {
+        this.range.end = new Location(Number(line), Number(column));
+        return this.range;
+      },
+      eof: () => {
+        this.location().start();
+        return this.location().end();
+      }
+    };
+  }
   public prevChar() {
     if(this.stack.length === 0) return;
     this.pop();
     let {line, column } = this.stack[this.stack.length - 1];
-    this.source.line = line;
-    this.source.column = column;
+    this.line = line;
+    this.column = column;
     return this.source.charAt(this.source.position--);
   }
   public nextChar() {
@@ -86,11 +111,12 @@ class Scanner {
     // increment the line and reset the column
     // else increment the column
     if (this.source.charAt(this.source.position) === '\n') {
-      this.source.line++;
-      this.source.column = 1;
+      this.line++;
+      this.column = 0;
       this.push();
     } else {
-      this.source.column++;
+      // console.log(this.location().column, this.source.position);
+      this.column++;
       this.push();
     }
     return this.source.charAt(this.source.position++);
@@ -116,8 +142,9 @@ class Scanner {
   private push() {
     this.stack.push({
       char: this.source.charAt(this.source.position),
-      line: this.source.line,
-      column: this.source.column
+      location: {
+        range: this.range
+      }
     });
   }
   private pop() {
