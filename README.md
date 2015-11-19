@@ -25,7 +25,7 @@ great skills with me to make this project happen! :)
 ## Usage
 
 Cherry is currently being incubated under this repo so it is not published on npm. The plan is to stabilize this project
-and move the repo over to [Mr. Doc core](https://www.github.com/mr-doc/core) if it becomes accepted by the community.
+and move the repo over to [Mr. Doc core](https://www.github.com/mr-doc/core) once it is accepted by the community.
 While cherry may not be on npm, it is still possible to install directly from the GitHub repo:
 
 ```bash
