@@ -86,7 +86,7 @@ const stream = scanner.scan(function(ch){
 			return scan.number.call(this);
 		default:
 			this.location.start();
-			return new Token(TokenType.EOF, '', this.location().eof());
+			return new Token(TokenType.End, '', this.location().eof());
 	}
 });
 
