@@ -9,6 +9,8 @@ module Tokenization {
     Literal = 3,
     /** Operator */
     Operator = 4,
+    /** Punctuation */
+    Punctuation = 5,
     /**
      * Other types
      */
@@ -30,7 +32,12 @@ module Tokenization {
     }
     public static typeToString(type, key) : string {
       const normalize = (str:string) : string => {
-        return str[0].toUpperCase() + str.substring(1, str.length).toLowerCase();
+        if(str.match(/[ -_]/g)) {
+          return str.replace(/[-_]/g, ' ')
+          .split(' ')
+          .map(s => s[0].toUpperCase() + s.substring(1, s.length).toLowerCase())
+          .join('');
+        } else return str[0].toUpperCase() + str.substring(1, str.length).toLowerCase();
       };
       switch(type) {
         case TokenType.Identifier:
@@ -41,6 +48,8 @@ module Tokenization {
           return normalize(key) + 'Literal';
         case TokenType.Operator:
           return normalize(key) + 'Operator';
+        case TokenType.Punctuation:
+          return normalize(key) + 'Punctuation';
         case TokenType.Comment:
           return normalize(key) + 'Comment';
         case TokenType.WhiteSpace:

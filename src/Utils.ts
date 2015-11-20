@@ -26,8 +26,8 @@ module Utils {
   * Determines whether a digit is a decimal.
   * @return {boolean}
   */
-  public static isDecimalDigit(char: string): boolean {
-    const ch = char.charCodeAt(0);
+  public static isDecimalDigit(char: string | number): boolean {
+    const ch = typeof char === 'number' ? char : char.charCodeAt(0);
     // 0..9
     return 0x30 <= ch && ch <= 0x39;
   }
@@ -35,8 +35,8 @@ module Utils {
   * Determines whether a digit is a hex.
   * @return {boolean}
   */
-  public static isHexDigit(char: string): boolean {
-    const ch = char.charCodeAt(0);
+  public static isHexDigit(char: string | number): boolean {
+    const ch = typeof char === 'number' ? char : char.charCodeAt(0);
     // 0..9
     return 0x30 <= ch && ch <= 0x39 ||
         // a..f
@@ -48,8 +48,8 @@ module Utils {
   * Determines whether a digit is an octal.
   * @return {boolean}
   */
-  public static isOctalDigit(char: string): boolean {
-      const ch = char.charCodeAt(0);
+  public static isOctalDigit(char: string | number): boolean {
+      const ch = typeof char === 'number' ? char : char.charCodeAt(0);
   // 0..7
       return ch >= 0x30 && ch <= 0x37;
   }
@@ -57,8 +57,8 @@ module Utils {
   * Determines whether a character is a whitespace.
   * @return {boolean
   */
-  public static isWhiteSpace(char: string): boolean {
-    const ch = char.charCodeAt(0);
+  public static isWhiteSpace(char: string | number): boolean {
+    const ch = typeof char === 'number' ? char : char.charCodeAt(0);
     const whitespaces = [
         0x1680, 0x180E,
         0x2000, 0x2001, 0x2002, 0x2003, 0x2004, 0x2005, 0x2006, 0x2007, 0x2008, 0x2009, 0x200A,
@@ -73,8 +73,8 @@ module Utils {
   * Determines whether a character is a line terminator
   * @return {boolean}
   */
-  public static isLineTermintor(char: string): boolean {
-    const ch = char.charCodeAt(0);
+  public static isLineTermintor(char: string | number): boolean {
+    const ch = typeof char === 'number' ? char : char.charCodeAt(0);
     return ch === 0x0A || ch === 0x0D || ch === 0x2028 || ch === 0x2029;
     }
   }

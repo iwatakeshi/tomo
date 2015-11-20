@@ -52,8 +52,8 @@ class Scanner {
   private line: number;
   private column: number;
   private range: any;
-  constructor(source, options = { ignore : { whitespace: false } }) {
-    this.source = new Source(source);
+  constructor(source, options = { ignore : { whitespace: false }, isCharCode: false }) {
+    this.source = new Source(source, options);
     this.options = options;
     this.tokens = [];
     this.stack = [];
@@ -93,7 +93,7 @@ class Scanner {
       }
     };
   }
-  public prevChar() {
+  public prevChar(): string | number {
     if(this.stack.length === 0) return;
     this.pop();
     let {line, column } = this.stack[this.stack.length - 1];
@@ -101,7 +101,7 @@ class Scanner {
     this.column = column;
     return this.source.charAt(this.source.position--);
   }
-  public nextChar() {
+  public nextChar(): string | number {
     // If we are at the end or over the length
     // of the source then return EOF
     if (this.source.position >= this.source.length) {
@@ -110,7 +110,8 @@ class Scanner {
     // If we reach a new line then
     // increment the line and reset the column
     // else increment the column
-    if (this.source.charAt(this.source.position) === '\n') {
+    if (this.source.charAt(this.source.position) === '\n' ||
+        this.source.charAt(this.source.position) === '\n'.charCodeAt(0)) {
       this.line++;
       this.column = 0;
       this.push();
@@ -121,10 +122,10 @@ class Scanner {
     }
     return this.source.charAt(this.source.position++);
   }
-  public lookBackChar(peek = 0) {
+  public lookBackChar(peek = 0): string | number {
     return this.source.charAt(this.source.position - peek);
   }
-  public peekChar(peek = 0) {
+  public peekChar(peek = 0): string | number {
     // If we peek and the we reach the end or over
     // the length then return EOF
     if (this.source.position + peek >= this.source.length) {

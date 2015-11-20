@@ -62,12 +62,25 @@ const scan = {
       }
     })());
   },
+  'punctuation': function(ch) {
+    this.nextChar();
+    return new Token(TokenType.Punctuation, ch)
+    .setLocation(this.location().end())
+    .prepend((()=>{
+      switch(ch) {
+        case '(': return 'left paren';
+        case ')': return 'right paren';
+        case ';': return 'semi colon';
+      }
+    })())
+  },
   'end': function(ch) {
     return new Token(TokenType.End, ch, this.location().eof());
   }
 };
-
-const scanner = new Scanner('var x = 1.35 + 2');
+console.time('Scanner');
+const scanner = new Scanner('var x = 1.35 + 2;');
+// const scanner = new Scanner(require('fs').)
 const stream = scanner.scan(function (ch) {
   this.location().start();
   switch (ch) {
@@ -80,16 +93,22 @@ const stream = scanner.scan(function (ch) {
     case '=': case '+':
     case '-': case '*':
     case '/': case '%':
-    case '(': case ')':
       return scan.operator.call(this, ch);
+    case '(': case ')':
+    case ';':
+      return scan.punctuation.call(this, ch);
     default:
-      return scan.identifier.call(this, ch) || scan.end.call(this, ch);
+      return scan.identifier.call(this, ch) || 
+      (isEOF(ch) ? scan.end.call(this, ch) : new Token(TokenType.Invalid));
       
   }
 });
+
+console.timeEnd('Scanner');
+
 const should = function(actual, expected) {
   if(actual === expected) console.log('OK, test passed.')
-  else throw `Failed! Expected ${expected} but encountered ${actual}`;
+  else throw new Error(`Failed! Expected ${expected} but encountered ${actual}`);
 };
 
 stream.forEach(i => console.log(JSON.stringify(i.toJSON(), null, 2)));
@@ -101,6 +120,7 @@ const expected = [
   Token.typeToString(TokenType.Literal, 'number'),
   Token.typeToString(TokenType.Operator, 'plus'),
   Token.typeToString(TokenType.Literal, 'number'),
+  Token.typeToString(TokenType.Punctuation, 'semi colon'),
   Token.typeToString(TokenType.End)
  ];
  
