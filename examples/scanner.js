@@ -1,5 +1,5 @@
 'use strict';
-const { Scanner, Tokenization } = require('../');
+const { Scanner, Tokenization, Collections } = require('../');
 const { Token, TokenType } = Tokenization;
 
 const isOperator = function (c) { return /[+\-*\/\^%=(),]/.test(c); },
@@ -19,7 +19,13 @@ const scan = {
     if(isEOF(ch)) {
       return undefined;
     }
-    const reserved = {'var': true, 'let': true };
+    const reserved = {
+    'var': true, 'let': true,
+    'const':true, 'if':true, 
+    'then':true, 'begin':true,
+    'do': true, 'while':true,
+    'odd':true, 'procedure': true,
+    'call':true };
     let buffer = [];
     do {
       buffer.push(this.nextChar());
@@ -42,35 +48,53 @@ const scan = {
       ch = this.peekChar();
     } while (isDigit(ch) || ch === '.');
     const location = this.location().end();
-    if (!isFinite(parseFloat(buffer.join('')))) throw "Number is too large or too small for a 64-bit double.";
     return new Token(TokenType.Literal)
       .prepend('number')
       .setValue(buffer.join(''))
       .setLocation(location);
   },
   'operator': function (ch) {
-    this.nextChar();
-    return new Token(TokenType.Operator, ch)
-    .setLocation(this.location().end())
-    .prepend((()=>{
-      switch(ch) {
-        case '+': return 'plus'; 
-        case '-': return 'minus';
-        case '*': return 'multiply'; 
-        case '/': return 'divide';
-        case '=': return 'assign';
+    let two = ch + this.peekChar(1);
+    let name, count = 0;
+        switch(two) {
+        case '==': name = 'equal'; count = 1; break;
+        case '<=': name = 'less than'; count = 1; break;
+        case '>=': name = 'greater than'; count = 1; break;
+        case '!=': name = 'not equal'; count = 1; break;
+        case '++': name = 'increment plus'; count = 1; break;
+        case '**': name = 'increment multiply'; count = 1; break;
+        case '--': name = 'increment minus'; count = 1; break;
+        case '+=': name = 'increment add assign'; count = 1; break;
+        case '-=': name = 'increment subtract assign'; count = 1; break;
+        case '||': name = 'or'; break;
       }
-    })());
+    let one = ch;
+      switch(one) {
+        case '+': name = 'plus'; count = 2; break;
+        case '-': name = 'minus'; count = 2; break;
+        case '*': name = 'multiply'; count = 2; break;
+        case '/': name = 'divide'; count = 2; break;
+        case '=': name = 'assign'; count = 2; break;
+        case '&': name = 'and'; count = 2; break;
+      }
+
+      if(count === 1) this.nextChar(); else { this.nextChar(); this.nextChar(); }
+      return new Token(TokenType.Operator, count === 1 ?  one : two)
+      .setLocation(this.location().end())
+      .prepend(name);
   },
   'punctuation': function(ch) {
     this.nextChar();
     return new Token(TokenType.Punctuation, ch)
     .setLocation(this.location().end())
-    .prepend((()=>{
+    .prepend((() => {
       switch(ch) {
         case '(': return 'left paren';
         case ')': return 'right paren';
         case ';': return 'semi colon';
+        case '.': return 'period';
+        case ',': return 'comma';
+        
       }
     })())
   },
@@ -78,8 +102,8 @@ const scan = {
     return new Token(TokenType.End, ch, this.location().eof());
   }
 };
-console.time('Scanner');
-const scanner = new Scanner('var x = 1.35 + 2;');
+
+const scanner = new Scanner('alpha = 16;');
 // const scanner = new Scanner(require('fs').)
 const stream = scanner.scan(function (ch) {
   this.location().start();
@@ -100,28 +124,11 @@ const stream = scanner.scan(function (ch) {
     default:
       return scan.identifier.call(this, ch) || 
       (isEOF(ch) ? scan.end.call(this, ch) : new Token(TokenType.Invalid));
-      
   }
 });
+const elapsed = scanner.info.time.elapsed;
+console.log('time elapsed:', elapsed, elapsed > 1 ? 'milliseconds' : 'millisecond');
 
-console.timeEnd('Scanner');
-
-const should = function(actual, expected) {
-  if(actual === expected) console.log('OK, test passed.')
-  else throw new Error(`Failed! Expected ${expected} but encountered ${actual}`);
-};
-
-stream.forEach(i => console.log(JSON.stringify(i.toJSON(), null, 2)));
-
-const expected = [
-  Token.typeToString(TokenType.Reserved), 
-  Token.typeToString(TokenType.Identifier),
-  Token.typeToString(TokenType.Operator, 'assign'),
-  Token.typeToString(TokenType.Literal, 'number'),
-  Token.typeToString(TokenType.Operator, 'plus'),
-  Token.typeToString(TokenType.Literal, 'number'),
-  Token.typeToString(TokenType.Punctuation, 'semi colon'),
-  Token.typeToString(TokenType.End)
- ];
+stream.forEach(s => console.log(s));
  
- stream.forEach((s, i) => should(s.toJSON().token.type.value, expected[i]))
+module.exports = stream;

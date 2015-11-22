@@ -1,4 +1,4 @@
-'use strict';
+import Location from './Location';
 
 module Tokenization {
   export enum TokenType {
@@ -21,17 +21,45 @@ module Tokenization {
   }
 
   export class Token {
+    /** The enum value of the token type. */
     public type: TokenType;
+    /** The enum string value of the token type. */
+    public stype: string;
+    /** The string value of the token/char. */
     public value: string;
-    public key: string ;
-    private location;
-    constructor (type?: TokenType, value?:string, location?) {
+    /** The prepend value. */
+    private pvalue: string;
+    /** The location. */
+    private loc;
+    constructor (type?: TokenType, value?:string, location?: { start: Location, end: Location }) {
       this.type = type;
+      this.stype = this.typeToString();
       this.value = value;
-      this.location = location;
+      this.pvalue = '';
+      this.loc = location;
     }
-    public static typeToString(type, key) : string {
+    public static stringToType(str: string) {
+      let type: TokenType;
+      [
+        'Identifier',
+        'Reserved',
+        'Literal',
+        'Operator',
+        'Punctuation',
+        'Comment',
+        'WhiteSpace',
+        'End',
+        'Invalid'
+      ].forEach(function(t){
+        if(str.indexOf(t) > -1) type = TokenType[t];
+      });
+      return type;
+    }
+    public static typeToString(type, prepend?) : string {
       const normalize = (str:string) : string => {
+        if(!str) {
+          return '';
+        }
         if(str.match(/[ -_]/g)) {
           return str.replace(/[-_]/g, ' ')
           .split(' ')
@@ -45,13 +73,13 @@ module Tokenization {
         case TokenType.Reserved:
           return 'Reserved';
         case TokenType.Literal:
-          return normalize(key) + 'Literal';
+          return normalize(prepend) + 'Literal';
         case TokenType.Operator:
-          return normalize(key) + 'Operator';
+          return normalize(prepend) + 'Operator';
         case TokenType.Punctuation:
-          return normalize(key) + 'Punctuation';
+          return normalize(prepend) + 'Punctuation';
         case TokenType.Comment:
-          return normalize(key) + 'Comment';
+          return normalize(prepend) + 'Comment';
         case TokenType.WhiteSpace:
           return 'WhiteSpace';
         case TokenType.Invalid:
@@ -64,8 +92,9 @@ module Tokenization {
      * Appends a detailed description to the specified type when
      * converting the type to string.
      */
-    public prepend(key = '') {
-      this.key = key;
+    public prepend(value = '') {
+      this.pvalue = value;
+      this.stype = this.typeToString();
       return this;
     }
     public setType (type:TokenType) {
@@ -73,32 +102,35 @@ module Tokenization {
       return this;
     }
     public setLocation (location) {
-      this.location = location;
+      this.loc = location;
       return this;
     }
     public setValue (value) {
       this.value = value;
       return this;
     }
+    public location () : { start: Location, end: Location } {
+      return this.loc;
+    }
     /**
      * Converts type to string.
      */
     public typeToString() : string {
-      return Token.typeToString(this.type, this.key);
+      return Token.typeToString(this.type, this.pvalue);
     }
     /**
      * Returns a string representation of the Token class.
      */
     public toString () : string {
-      return `token type: ${ this.type } - ${ this.typeToString() }, value: ${ this.value }`;
+      return `token type: ${ this.type }, value: ${ this.value }`;
     }
     public toJSON () : {} {
-      let { start, end } = this.location;
+      let { start, end } = this.loc;
       start = start.toJSON();
       end = end.toJSON();
       return  {
         token: {
-          type: { key: this.type, value: this.typeToString() },
+          type: { key: this.type, value: this.stype},
           value: this.value,
           location: {
             start: start,

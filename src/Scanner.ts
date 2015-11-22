@@ -3,10 +3,11 @@
 import Source from './Source';
 import Utils from './Utils';
 import Location from './Location';
+import Tokenization from './Token';
 
-class Stream {
+export class Stream {
+  public position: number;
   private stream: Array<any>;
-  private position: number;
   constructor(array: Array<any> = []) {
     this.stream = array;
     this.position = 0;
@@ -14,16 +15,23 @@ class Stream {
   public add(token) {
     this.stream.push(token);
   }
-  public prev() {
+  public prev() : Tokenization.Token {
     return this.stream[this.position--];
   }
-  public next() {
+  public next() : Tokenization.Token {
+    if(this.position >= this.stream.length) return;
     return this.stream[this.position++];
   }
-  public get(distance) {
-    return this.stream[distance];
+  public peek(peek:number) : Tokenization.Token {
+    return this.stream[this.position + peek];
   }
-  public length() {
+  public lookBack(peek:number) : Tokenization.Token {
+    return this.stream[this.position - peek];
+  }
+  public current(): Tokenization.Token {
+    return this.stream[this.position];
+  }
+  public length() : number {
     return this.stream.length;
   }
   public forEach(callback, thisArg) {
@@ -44,14 +52,15 @@ class Stream {
   }
 }
 
-class Scanner {
+export class Scanner {
+  public info: { time: {elapsed: Date | number }};
   private source: Source;
   private options;
   private tokens: Array<any>;
   private stack: Array<any>;
   private line: number;
   private column: number;
-  private range: any;
+  private range: {start: Location, end: Location};
   constructor(source, options = { ignore : { whitespace: false }, isCharCode: false }) {
     this.source = new Source(source, options);
     this.options = options;
@@ -59,10 +68,12 @@ class Scanner {
     this.stack = [];
     this.line = 1;
     this.column = 0;
-    this.range = {};
+    this.range = {start: undefined, end: undefined};
+    this.info = { time: { elapsed: 0 } };
   }
 
   public scan(tokenizer): Stream {
+    let start = Date.now();
     this.ignoreWhiteSpace();
     while (this.peekChar() !== this.source.EOF) {
       const token = tokenizer.call(this, this.peekChar());
@@ -73,21 +84,22 @@ class Scanner {
       const token = tokenizer.call(this, this.peekChar());
       if(token) this.tokens.push(token);
     }
+    this.info.time.elapsed = (Date.now() - start);
     return new Stream(this.tokens);
   }
   public location () {
     const { line, column } = this;
     return {
-      start: () => {
-        this.range = {};
+      start: () : { start: Location, end: Location } => {
+        this.range = { start: undefined, end: undefined };
         this.range.start = new Location(Number(line), Number(column));
         return this.range;
       },
-      end: () => {
+      end: () : { start: Location, end: Location } => {
         this.range.end = new Location(Number(line), Number(column));
         return this.range;
       },
-      eof: () => {
+      eof: (): { start: Location, end: Location } => {
         this.location().start();
         return this.location().end();
       }

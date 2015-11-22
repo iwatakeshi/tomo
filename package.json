@@ -4,7 +4,7 @@
   "description": "A small generic parser written in JavaScript.",
   "main": "index.js",
   "scripts": {
-    "start": "gulp && node --harmony_destructuring examples/scanner.js",
+    "start": "gulp && node --harmony_destructuring examples/parser",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {

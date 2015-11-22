@@ -21,7 +21,7 @@
         "!node_modules/**"
     ],
     "files": [
-        "./src/Map.ts",
+        "./src/Collections.ts",
         "./src/Parser.ts",
         "./src/Scanner.ts",
         "./src/Source.ts",

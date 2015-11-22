@@ -1,5 +1,6 @@
 'use strict';
 /*
+  Copyright (C) 2015 by Takeshi Iwana, @iwatakeshi
  	Copyright (C) 2011 by Andrea Giammarchi, @WebReflection
 
 	Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -23,14 +24,14 @@
 //shared pointer
 let i;
 //shortcuts
-let defineProperty = Object.defineProperty, is = function(a,b) { return isNaN(a)? isNaN(b): a === b; };
+let defineProperty = Object.defineProperty, is = function(a, b) { return isNaN(a) ? isNaN(b) : a === b; };
 
 /**
   * ES6 collection constructor
   * @return {Function} a collection class
   */
-function createCollection(proto?, objectOnly?){
-  function Collection(a){
+function createCollection(proto?, objectOnly?) {
+  function Collection(a) {
     if (!this || this.constructor !== Collection) return new Collection(a);
     this._keys = [];
     this._values = [];
@@ -57,14 +58,14 @@ function createCollection(proto?, objectOnly?){
 
 
 /** parse initial iterable argument passed */
-function init(a){
+function init(a) {
   var i;
   //init Set argument, like `[1,2,3,{}]`
   if (this.add)
     a.forEach(this.add, this);
   //init Map argument like `[[1,2], [{}, 4]]`
   else
-    a.forEach(function(a){this.set(a[0],a[1])}, this);
+    a.forEach(function(a) { this.set(a[0], a[1]) }, this);
 }
 
 
@@ -105,7 +106,7 @@ function mapHas(value) {
 /** @chainable */
 function sharedSet(key, value) {
   this.has(key) ?
-    this._values[i] = value:
+    this._values[i] = value :
     this._values[this._keys.push(key) - 1] = value;
   return this;
 }
@@ -145,7 +146,7 @@ function sharedIterator(itp?, array?, array2?) {
     next: function() {
       let v, k = p[0];
       if (!done && k < array.length) {
-        v = array2 ? [array[k], array2[k]]: array[k];
+        v = array2 ? [array[k], array2[k]] : array[k];
         p[0]++;
       } else {
         done = true;
@@ -162,80 +163,121 @@ function sharedSize() {
 
 function sharedForEach(callback, context) {
   let it = this.entries();
-  for (;;) {
+  for (; ;) {
     let r = it.next();
     if (r.done) break;
     callback.call(context, r.value[1], r.value[0], this);
   }
 }
 
-let Map, WeakMap, Set, WeakSet;
 
+module Collections {
+  export class Map {
+    constructor() {
+      return createCollection({
+        // WeakMap#delete(key:void*):boolean
+        'delete': sharedDelete,
+        //:was Map#get(key:void*[, d3fault:void*]):void*
+        // Map#has(key:void*):boolean
+        has: mapHas,
+        // Map#get(key:void*):boolean
+        get: sharedGet,
+        // Map#set(key:void*, value:void*):void
+        set: sharedSet,
+        // Map#keys(void):Iterator
+        keys: sharedKeys,
+        // Map#values(void):Iterator
+        values: sharedValues,
+        // Map#entries(void):Iterator
+        entries: mapEntries,
+        // Map#forEach(callback:Function, context:void*):void ==> callback.call(context, key, value, mapObject) === not in specs`
+        forEach: sharedForEach,
+        // Map#clear():
+        clear: sharedClear
+      }).apply(this, arguments);
+    }
+    public delete (key) {/* Implemented */}
+    public has (value) : any {/* Implemented */}
+    public get (key) : any {/* Implemented */}
+    public set (key, value) {/* Implemented */}
+    public keys () : any {/* Implemented */}
+    public values () : any {/* Implemented */}
+    public entries () : any {/* Implemented */}
+    public forEach (callback, thisArg) {/* Implemented */}
+    public clear () {/* Implemented */}
+  }
 
-//Polyfill global objects
-  WeakMap = createCollection({
-    // WeakMap#delete(key:void*):boolean
-    'delete': sharedDelete,
-    // WeakMap#clear():
-    clear: sharedClear,
-    // WeakMap#get(key:void*):void*
-    get: sharedGet,
-    // WeakMap#has(key:void*):boolean
-    has: mapHas,
-    // WeakMap#set(key:void*, value:void*):void
-    set: sharedSet
-  }, true);
+  export class WeakMap {
+    constructor() {
+      return createCollection({
+        // WeakMap#delete(key:void*):boolean
+        'delete': sharedDelete,
+        // WeakMap#clear():
+        clear: sharedClear,
+        // WeakMap#get(key:void*):void*
+        get: sharedGet,
+        // WeakMap#set(key:void*, value:void*):void
+        set: sharedSet,
+        // WeakMap#has(key:void*):boolean
+        has: mapHas
+      }, true).apply(this, arguments);
+    }
+    public delete (key) {/* Implemented */}
+    public clear () {/* Implemented */}
+    public get (key)  : any {/* Implemented */}
+    public set (key, value) {/* Implemented */}
+    public has (value) {/* Implemented */}
+  }
 
-  Map = createCollection({
-    // WeakMap#delete(key:void*):boolean
-    'delete': sharedDelete,
-    //:was Map#get(key:void*[, d3fault:void*]):void*
-    // Map#has(key:void*):boolean
-    has: mapHas,
-    // Map#get(key:void*):boolean
-    get: sharedGet,
-    // Map#set(key:void*, value:void*):void
-    set: sharedSet,
-    // Map#keys(void):Iterator
-    keys: sharedKeys,
-    // Map#values(void):Iterator
-    values: sharedValues,
-    // Map#entries(void):Iterator
-    entries: mapEntries,
-    // Map#forEach(callback:Function, context:void*):void ==> callback.call(context, key, value, mapObject) === not in specs`
-    forEach: sharedForEach,
-    // Map#clear():
-    clear: sharedClear
-  });
+  export class Set {
+    constructor() {
+      return createCollection({
+        // Set#has(value:void*):boolean
+        has: setHas,
+        // Set#add(value:void*):boolean
+        add: sharedAdd,
+        // Set#delete(key:void*):boolean
+        'delete': sharedDelete,
+        // Set#clear():
+        clear: sharedClear,
+        // Set#keys(void):Iterator
+        keys: sharedValues,
+        // Set#values(void):Iterator
+        values: sharedValues,
+        // Set#entries(void):Iterator
+        entries: setEntries,
+        // Set#forEach(callback:Function, context:void*):void ==> callback.call(context, value, index) === not in specs
+        forEach: sharedForEach
+      }).apply(this, arguments);
+    }
+    public delete () {/* Implemented */}
+    public has (value) : any {/* Implemented */}
+    public add(value) {/* Implemented */}
+    public keys () : any {/* Implemented */}
+    public values () : any {/* Implemented */}
+    public entries () : any {/* Implemented */}
+    public forEach (callback, thisArg) {/* Implemented */}
+    public clear () {/* Implemented */}
+  }
 
- Set = createCollection({
-  // Set#has(value:void*):boolean
-  has: setHas,
-  // Set#add(value:void*):boolean
-  add: sharedAdd,
-  // Set#delete(key:void*):boolean
-  'delete': sharedDelete,
-  // Set#clear():
-  clear: sharedClear,
-  // Set#keys(void):Iterator
-  keys: sharedValues, // specs actually say "the same function object as the initial value of the values property"
-  // Set#values(void):Iterator
-  values: sharedValues,
-  // Set#entries(void):Iterator
-  entries: setEntries,
-  // Set#forEach(callback:Function, context:void*):void ==> callback.call(context, value, index) === not in specs
-  forEach: sharedForEach
-});
+  export class WeakSet {
+    constructor() {
+      return createCollection({
+        // WeakSet#delete(key:void*):boolean
+        'delete': sharedDelete,
+        // WeakSet#add(value:void*):boolean
+        add: sharedAdd,
+        // WeakSet#clear():
+        clear: sharedClear,
+        // WeakSet#has(value:void*):boolean
+        has: setHas
+      }, true).apply(this, arguments);
+    }
+    public delete () {/* Implemented */}
+    public add(value) {/* Implemented */}
+    public clear () {/* Implemented */}
+    public has (value) : any {/* Implemented */}
+  }
+}
 
-  WeakSet = createCollection({
-  // WeakSet#delete(key:void*):boolean
-  'delete': sharedDelete,
-  // WeakSet#add(value:void*):boolean
-  add: sharedAdd,
-  // WeakSet#clear():
-  clear: sharedClear,
-  // WeakSet#has(value:void*):boolean
-  has: setHas
-}, true);
-
-export { Map, WeakMap, Set, WeakSet };
+export default Collections;
