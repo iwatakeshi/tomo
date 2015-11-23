@@ -1,63 +1,81 @@
 import Source from './Source';
 import Utils from './Utils';
-import Location from './Location';
+import { Location, Range } from './Location';
 import Stream from './Stream';
 import Options from './Options';
-
+import Tokenize from './Token';
+/* @class {Scanner} - Creates a scanner object. */
 class Scanner {
+  /** The information about the Scanner */
   public info: { time: { elapsed: Date | number } };
+  /** The source object */
   private source: Source;
+  /** The options */
   private options: any;
+  /** The tokens stack */
   private tokens: Array<any>;
+  /** The history stack */
   private stack: Array<any>;
+  /** The source line number */
   private line: number;
+  /** The source column number */
   private column: number;
-  private range: { start: Location, end: Location };
-  constructor(source, options = Options.Scanner) {
-    this.source = new Source(source, options);
+  /** The range in the source. */
+  private range: Range;
+  constructor(source: Source, options = Options.Scanner) {
+    this.source = source;
     this.options = options;
     this.tokens = [];
     this.stack = [];
     this.line = 1;
     this.column = 0;
-    this.range = { start: undefined, end: undefined };
+    this.range = new Range();
     this.info = { time: { elapsed: 0 } };
   }
-
-  public scan(tokenizer): Stream {
+  /*
+    @method {scan} - Calls the tokenizer as it scans through the source.
+    @param {tokenizer: (char: string | number) => Token} - The tokenizer function which returns a token.
+    @return {class Stream} - The token stream.
+    @example: javascript {
+      let scanner = new Scanner(new Source('...'));
+      scanner.scan(function(ch) {
+        //...
+      });
+    }
+  */
+  public scan(tokenizer: (char: string | number) => Tokenize.Token): Stream {
     let start = Date.now();
     this.ignoreWhiteSpace();
-    while (this.peekChar() !== this.source.EOF) {
-      const token = tokenizer.call(this, this.peekChar());
+    while (this.peek() !== this.source.EOF) {
+      const token: Tokenize.Token = tokenizer.call(this, this.peek());
       if (token) this.tokens.push(token);
       this.ignoreWhiteSpace();
     }
-    if (this.peekChar() === this.source.EOF) {
-      const token = tokenizer.call(this, this.peekChar());
+    if (this.peek() === this.source.EOF) {
+      const token = tokenizer.call(this, this.peek());
       if (token) this.tokens.push(token);
     }
     this.info.time.elapsed = (Date.now() - start);
-    return new Stream(this.tokens);
+    return new Stream(this.tokens.slice());
   }
-  public location() {
+  public location(): { start: () => void, end: () => Range, eof: () => Range } {
     const { line, column } = this;
     return {
-      start: (): { start: Location, end: Location } => {
-        this.range = { start: undefined, end: undefined };
+      start: (): void => {
+        this.range = new Range();
         this.range.start = new Location(Number(line), Number(column));
-        return this.range;
       },
-      end: (): { start: Location, end: Location } => {
+      end: (): Range => {
         this.range.end = new Location(Number(line), Number(column));
         return this.range;
       },
-      eof: (): { start: Location, end: Location } => {
+      eof: (): Range => {
         this.location().start();
         return this.location().end();
       }
     };
   }
-  public prevChar(): string | number {
+  public previous(): string | number {
     if (this.stack.length === 0) return;
     this.pop();
     let { line, column } = this.stack[this.stack.length - 1];
@@ -65,7 +83,7 @@ class Scanner {
     this.column = column;
     return this.source.charAt(this.source.position--);
   }
-  public nextChar(): string | number {
+  public next(): string | number {
     // If we are at the end or over the length
     // of the source then return EOF
     if (this.source.position >= this.source.length) {
@@ -80,16 +98,15 @@ class Scanner {
       this.column = 0;
       this.push();
     } else {
-      // console.log(this.location().column, this.source.position);
       this.column++;
       this.push();
     }
     return this.source.charAt(this.source.position++);
   }
-  public lookBackChar(peek = 0): string | number {
+  public peekBack(peek = 0): string | number {
     return this.source.charAt(this.source.position - peek);
   }
-  public peekChar(peek = 0): string | number {
+  public peek(peek = 0): string | number {
     // If we peek and the we reach the end or over
     // the length then return EOF
     if (this.source.position + peek >= this.source.length) {
@@ -102,11 +119,11 @@ class Scanner {
       if (this.options.override.whitespace &&
         typeof this.options.override.whitespace === 'function') {
         const isWhiteSpace = this.options.override.whitespace;
-        while (isWhiteSpace(this.peekChar())) {
-          this.nextChar();
+        while (isWhiteSpace(this.peek())) {
+          this.next();
         }
-      } else while (Utils.Code.isWhiteSpace(this.peekChar())) {
-        this.nextChar();
+      } else while (Utils.Code.isWhiteSpace(this.peek())) {
+        this.next();
       }
     }
     return;

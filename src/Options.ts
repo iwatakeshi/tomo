@@ -3,7 +3,6 @@ module Options {
     ignore:{
       whitespace: true
     },
-    isCharCode: true,
     override:{
       isWhiteSpace: undefined
     }

@@ -16,7 +16,7 @@ export class Location {
 export class Range {
   public start : Location;
   public end : Location;
-  constructor(start:Location, end:Location) {
+  constructor(start?:Location, end?:Location) {
     this.start = start;
     this.end = end;
   }

@@ -2,12 +2,14 @@ import Tokenize from './Token';
 /* @class {Stream} - Creates a stream object. */
 class Stream {
   public position: number;
+  public length: number;
   private stream: Array<any>;
   /* 
     @param {tokens: Array<class Token>} - The scanned tokens.
   */
   constructor(tokens: Array<Tokenize.Token> = []) {
     this.stream = tokens;
+    this.length = tokens.length;
     this.position = 0;
   }
   /*
@@ -53,13 +55,6 @@ class Stream {
   */
   public current(): Tokenize.Token {
     return this.stream[this.position];
-  }
-  /*
-    @method {length}
-    @return {class Token} - The length of the token stream.
-  */
-  public length(): number {
-    return this.stream.length;
   }
   /*
     @method {forEach} - Loops through the tokens in the stream.

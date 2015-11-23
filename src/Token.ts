@@ -13,9 +13,7 @@ module Token {
     Operator = 4,
     /** Punctuation */
     Punctuation = 5,
-    /**
-     * Other types
-     */
+    /** Other types */
     Comment = 100,
     Whitespace = 50,
     End = 0,

@@ -23,13 +23,13 @@ class Parser {
     }
   }
   public lookBack(peek: number) {
-    return this.stream.lookBack(peek);
+    return this.stream.peekBack(peek);
   }
   public peek(peek = 0) {
     return this.stream.peek(peek);
   }
   public prev() {
-    return this.stream.prev();
+    return this.stream.previous();
   }
   public next() {
     return this.stream.next();
@@ -37,7 +37,7 @@ class Parser {
   public location (): { start: Location, end: Location } {
     if(this.peek()) {
       return this.peek().location();
-    } else if(this.stream.length() === 0) {
+    } else if(this.stream.length === 0) {
       return {
         start: new Location(0, 0),
         end: new Location(0, 0)
