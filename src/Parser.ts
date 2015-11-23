@@ -1,16 +1,14 @@
 import Tokenization from './Token';
 import Location from './Location';
-import Scanner = require('./Scanner');
+import Stream from './Stream';
 const { TokenType, Token } = Tokenization;
 
 class Parser {
-  public info: { time: {elapsed: Date | number }};
-  private stream: Scanner.Stream;
-  private errorStack: Array<any>;
-  constructor(stream: Scanner.Stream) {
+  public info: { time: {elapsed: Date | number }, errors: Array<any> };
+  private stream: Stream;
+  constructor(stream: Stream) {
     this.stream = stream;
-    this.info = { time: { elapsed: 0 } };
-    this.errorStack = [];
+    this.info = { time: { elapsed: 0 }, errors: [] };
   }
   public parse(parser) {
     if (typeof parser === 'function') {
@@ -46,7 +44,7 @@ class Parser {
       };
     } else return this.lookBack(1).location();
   }
-  public match(type: string, ...arg) {
+  public matchString(type: string, ...arg) {
     switch (arg.length) {
       case 0:
         return this.peek() && this.peek().stype === type;
@@ -61,7 +59,7 @@ class Parser {
         }
     }
   }
-  public matchAny(...arg) {
+  public matchAnyString(...arg) {
     return arg
     .map(stype => stype === this.peek().stype)
     .filter(truth => truth === false)
@@ -94,13 +92,13 @@ class Parser {
     if (this.accept(type, value ? value: ret)) return ret;
     let offender: Tokenization.Token = this.next();
     if (offender) {
-      this.errorStack.push({
+      this.info.errors.push({
         error: `Unexpected token: '${offender.typeToString() }'. Expected token: ${ Token.typeToString(type) }`,
         type: 'ParseError',
         location: offender.location()
       });
     } else {
-      this.errorStack.push({
+      this.info.errors.push({
         error: `Unexpected end of stream. Expected token: ${ Token.typeToString(type) }`,
         type: 'ParseError',
         location: offender.location()
@@ -110,7 +108,7 @@ class Parser {
     return new Token(Token.stringToType(type), '', this.location());
   }
   public raise(message?:string) {
-    this.errorStack.push({
+    this.info.errors.push({
       error: `Unexpected token: ${this.next().typeToString()}`,
       type: 'ParseError',
       message: message ? message : '',

@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "gulp && node --harmony_destructuring examples/parser",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "gulp && gulp test"
   },
   "repository": {
     "type": "git",
@@ -26,11 +26,13 @@
   "homepage": "https://github.com/iwatakeshi/cherry#readme",
   "devDependencies": {
     "babel-preset-es2015": "^6.0.11",
+    "chai": "^3.4.1",
     "del": "^2.1.0",
     "gulp": "^3.9.0",
     "gulp-babel": "^6.0.0",
     "gulp-clean": "^0.3.1",
     "gulp-if": "^2.0.0",
+    "gulp-mocha": "^2.2.0",
     "gulp-typescript": "^2.9.2",
     "minimist": "^1.2.0"
   }

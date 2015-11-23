@@ -27,6 +27,8 @@
         "./src/Source.ts",
         "./src/Token.ts",
         "./src/Utils.ts",
-        "./src/Location.ts"
+        "./src/Location.ts",
+        "./src/Options.ts",
+        "./src/Stream.ts"
     ]
 }

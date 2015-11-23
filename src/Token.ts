@@ -1,6 +1,8 @@
 import Location from './Location';
 
-module Tokenization {
+/* @module {Token} - Contains the necessary data structures to define a Token */
+module Token {
+  /* @export {enum TokenType} - Identifies the token type. */
   export enum TokenType {
     /** Identifiers */
     Identifier = 1,
@@ -15,22 +17,35 @@ module Tokenization {
      * Other types
      */
     Comment = 100,
-    WhiteSpace = 50,
+    Whitespace = 50,
     End = 0,
-    Invalid = -1
+    Error = -1
   }
-
+  /* @export {class Token} - Creates a token object. */
   export class Token {
     /** The enum value of the token type. */
     public type: TokenType;
     /** The enum string value of the token type. */
     public stype: string;
-    /** The string value of the token/char. */
+    /** The string value of the token character. */
     public value: string;
     /** The prepend value. */
     private pvalue: string;
     /** The location. */
     private loc;
+    /*
+      @param {type?: enum TokenType} - The token's type.
+      @param {value?: string} - The token's character value.
+      @param {location?: class Location} - The token's location.
+      @example: javascript {
+        let location = { start: new Location(), end: new Location() };
+        let token = new Token(TokenType.Identifier, 'hello', location);
+      }
+      @notes: markdown {
+        * Use `type` and not `stype` for token comparisons.
+        * Token `stype` are camel cased when normalized.
+      }
+     */
     constructor (type?: TokenType, value?:string, location?: { start: Location, end: Location }) {
       this.type = type;
       this.stype = this.typeToString();
@@ -38,7 +53,14 @@ module Tokenization {
       this.pvalue = '';
       this.loc = location;
     }
-    public static stringToType(str: string) {
+    /*
+      @param {str: string} - The string to transform.
+      @returns {enum TokenType} - Returns the token type by string.
+      @example: javascript {
+        let type = Token.stringToType('Identifier');
+      }
+     */
+    public static stringToType(str: string) : TokenType {
       let type: TokenType;
       [
         'Identifier',
@@ -47,15 +69,27 @@ module Tokenization {
         'Operator',
         'Punctuation',
         'Comment',
-        'WhiteSpace',
+        'Whitespace',
         'End',
-        'Invalid'
+        'Error'
       ].forEach(function(t){
         if(str.indexOf(t) > -1) type = TokenType[t];
       });
       return type;
     }
-    public static typeToString(type, prepend?) : string {
+    /*
+      @param {type: enum TokenType} - The token type to transform.
+      @param {prepend?: string} - The additional info to prepend to the token type.
+      @return {string} - The string representation by token type.
+      @example: javascript {
+        let type = Token.typeToString(TokenType.Identifier);
+      }
+      @notes: markdown {
+        * Using `typeToString()` normalizes 'semi colon', 'semi-colon' => 'SemiColon' but fails
+          when 'SemiColon' which => 'Semicolon'.
+      }
+     */
+    public static typeToString(type: TokenType, prepend?: string) : string {
       const normalize = (str:string) : string => {
         if(!str) {
           return '';
@@ -69,7 +103,7 @@ module Tokenization {
       };
       switch(type) {
         case TokenType.Identifier:
-          return 'Indentifier';
+          return 'Identifier';
         case TokenType.Reserved:
           return 'Reserved';
         case TokenType.Literal:
@@ -80,50 +114,63 @@ module Tokenization {
           return normalize(prepend) + 'Punctuation';
         case TokenType.Comment:
           return normalize(prepend) + 'Comment';
-        case TokenType.WhiteSpace:
-          return 'WhiteSpace';
-        case TokenType.Invalid:
-          return 'Invalid';
+        case TokenType.Whitespace:
+          return 'Whitespace';
+        case TokenType.Error:
+          return 'Error';
         case TokenType.End:
           return 'End';
       }
     }
-    /**
-     * Appends a detailed description to the specified type when
-     * converting the type to string.
-     */
+    /*
+      @param {value = '': string} - The value to prepend to the token type.
+      @return {class Token}
+      @notes: {
+        * Use `prepend()` to add additional info to the token type. e.g. 'Operator' => 'AddOperator'
+      }
+    */
     public prepend(value = '') {
       this.pvalue = value;
       this.stype = this.typeToString();
       return this;
     }
+    /*
+      @param {type: enum TokenType} - The token type.
+      @return {class Token}
+    */
     public setType (type:TokenType) {
       this.type = type;
       return this;
     }
+     /*
+      @param {location: class Location} - The token's location.
+      @return {class Token}
+    */
     public setLocation (location) {
       this.loc = location;
       return this;
     }
+    /*
+      @param {location: class Location} - The token's character value.
+      @return {class Token}
+    */
     public setValue (value) {
       this.value = value;
       return this;
     }
+    /* @return {object: { start: class Location, end: class Location }} - The token's location. */
     public location () : { start: Location, end: Location } {
       return this.loc;
     }
-    /**
-     * Converts type to string.
-     */
+    /* @see {static Token.typeToString()} */
     public typeToString() : string {
       return Token.typeToString(this.type, this.pvalue);
     }
-    /**
-     * Returns a string representation of the Token class.
-     */
+    /* @return {string} - The string representation of the Token class. */
     public toString () : string {
       return `token type: ${ this.type }, value: ${ this.value }`;
     }
+    /* @return {object} - The JSON representation of the Token class. */
     public toJSON () : {} {
       let { start, end } = this.loc;
       start = start.toJSON();
@@ -146,4 +193,4 @@ module Tokenization {
   }
 }
 
-export default Tokenization;
+export default Token;

@@ -1,74 +1,26 @@
-'use strict';
-
 import Source from './Source';
 import Utils from './Utils';
 import Location from './Location';
-import Tokenization from './Token';
+import Stream from './Stream';
+import Options from './Options';
 
-export class Stream {
-  public position: number;
-  private stream: Array<any>;
-  constructor(array: Array<any> = []) {
-    this.stream = array;
-    this.position = 0;
-  }
-  public add(token) {
-    this.stream.push(token);
-  }
-  public prev() : Tokenization.Token {
-    return this.stream[this.position--];
-  }
-  public next() : Tokenization.Token {
-    if(this.position >= this.stream.length) return;
-    return this.stream[this.position++];
-  }
-  public peek(peek:number) : Tokenization.Token {
-    return this.stream[this.position + peek];
-  }
-  public lookBack(peek:number) : Tokenization.Token {
-    return this.stream[this.position - peek];
-  }
-  public current(): Tokenization.Token {
-    return this.stream[this.position];
-  }
-  public length() : number {
-    return this.stream.length;
-  }
-  public forEach(callback, thisArg) {
-    let T, k, O = this.stream, len = O.length;
-    if (typeof callback !== 'function') {
-      throw new TypeError(callback + ' is not a function');
-    }
-    if (arguments.length > 1) T = thisArg;
-    k = 0;
-    while (k < len) {
-      let kValue;
-      if (k in O) {
-        kValue = O[k];
-        callback.call(T, kValue, k, O);
-      }
-      k++;
-    }
-  }
-}
-
-export class Scanner {
-  public info: { time: {elapsed: Date | number }};
+class Scanner {
+  public info: { time: { elapsed: Date | number } };
   private source: Source;
-  private options;
+  private options: any;
   private tokens: Array<any>;
   private stack: Array<any>;
   private line: number;
   private column: number;
-  private range: {start: Location, end: Location};
-  constructor(source, options = { ignore : { whitespace: false }, isCharCode: false }) {
+  private range: { start: Location, end: Location };
+  constructor(source, options = Options.Scanner) {
     this.source = new Source(source, options);
     this.options = options;
     this.tokens = [];
     this.stack = [];
     this.line = 1;
     this.column = 0;
-    this.range = {start: undefined, end: undefined};
+    this.range = { start: undefined, end: undefined };
     this.info = { time: { elapsed: 0 } };
   }
 
@@ -80,22 +32,22 @@ export class Scanner {
       if (token) this.tokens.push(token);
       this.ignoreWhiteSpace();
     }
-    if(this.peekChar() === this.source.EOF) {
+    if (this.peekChar() === this.source.EOF) {
       const token = tokenizer.call(this, this.peekChar());
-      if(token) this.tokens.push(token);
+      if (token) this.tokens.push(token);
     }
     this.info.time.elapsed = (Date.now() - start);
     return new Stream(this.tokens);
   }
-  public location () {
+  public location() {
     const { line, column } = this;
     return {
-      start: () : { start: Location, end: Location } => {
+      start: (): { start: Location, end: Location } => {
         this.range = { start: undefined, end: undefined };
         this.range.start = new Location(Number(line), Number(column));
         return this.range;
       },
-      end: () : { start: Location, end: Location } => {
+      end: (): { start: Location, end: Location } => {
         this.range.end = new Location(Number(line), Number(column));
         return this.range;
       },
@@ -106,9 +58,9 @@ export class Scanner {
     };
   }
   public prevChar(): string | number {
-    if(this.stack.length === 0) return;
+    if (this.stack.length === 0) return;
     this.pop();
-    let {line, column } = this.stack[this.stack.length - 1];
+    let { line, column } = this.stack[this.stack.length - 1];
     this.line = line;
     this.column = column;
     return this.source.charAt(this.source.position--);
@@ -123,7 +75,7 @@ export class Scanner {
     // increment the line and reset the column
     // else increment the column
     if (this.source.charAt(this.source.position) === '\n' ||
-        this.source.charAt(this.source.position) === '\n'.charCodeAt(0)) {
+      this.source.charAt(this.source.position) === '\n'.charCodeAt(0)) {
       this.line++;
       this.column = 0;
       this.push();
@@ -146,10 +98,17 @@ export class Scanner {
     return this.source.charAt(this.source.position + peek);
   }
   private ignoreWhiteSpace() {
-    if (!this.options.ignore.whitespace)
-      while (Utils.Code.isWhiteSpace(this.peekChar())) {
+    if (!this.options.ignore.whitespace) {
+      if (this.options.override.whitespace &&
+        typeof this.options.override.whitespace === 'function') {
+        const isWhiteSpace = this.options.override.whitespace;
+        while (isWhiteSpace(this.peekChar())) {
+          this.nextChar();
+        }
+      } else while (Utils.Code.isWhiteSpace(this.peekChar())) {
         this.nextChar();
       }
+    }
     return;
   }
   private push() {
