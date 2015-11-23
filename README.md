@@ -3,6 +3,8 @@ A small generic lexer and parser written in JavaScript for Node and the web.
 
 Note: Not production ready and it's more like a toy for the moment.
 
+[![Build Status](https://travis-ci.org/iwatakeshi/cherry.svg?branch=master)](https://travis-ci.org/iwatakeshi/cherry)
+
 ## Background
 
 Cherry is a small generic lexer and parser that started out of curiousity on how lexers and parsers work. In addition to my curiosity,
