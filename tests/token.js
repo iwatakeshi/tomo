@@ -1,9 +1,10 @@
 'use strict';
 
-const Tokenize = require('../').Tokenize;
-const Token = Tokenize.Token, TokenType = Tokenize.TokenType;
-const chai = require('chai');
-const assert = chai.assert;
+const Tokenize  = require('../').Tokenize;
+const Token     = Tokenize.Token, TokenType = Tokenize.TokenType;
+const chai      = require('chai');
+const assert    = chai.assert;
+
 describe('TokenType', () => {
   const types = [
     ['Identifier', 1],

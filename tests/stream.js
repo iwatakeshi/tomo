@@ -1,8 +1,8 @@
 'use strict';
-const Stream = require('../').Stream;
-const Tokenize = require('../').Tokenize;
-const Token = Tokenize.Token, TokenType = Tokenize.TokenType;
-const assert = require('chai').assert;
+const Stream    = require('../').Stream;
+const Tokenize  = require('../').Tokenize;
+const Token     = Tokenize.Token, TokenType = Tokenize.TokenType;
+const assert    = require('chai').assert;
 
 describe('Stream', () => {
   const tokens = [
