@@ -39,7 +39,11 @@ export class Range {
     this.start = start;
     this.end = end;
   }
-  public location () {
+  /*
+    @method {location}
+    @return {Array<any>} - Returns the range.
+   */
+  public location (): Array<any> {
     return [this.start.toJSON(), this.end.toJSON()];
   }
   public toJSON() {

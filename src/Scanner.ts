@@ -22,6 +22,13 @@ class Scanner {
   private column: number;
   /** The range in the source. */
   private range: Range;
+  /*
+    @param {source: Source} - The source object.
+    @param {options = Options.Scanner} - The options.
+    @example: javascript {
+      const scanner = new Scanner(new Source('var x = 12;'));
+    }
+   */
   constructor(source: Source, options = Options.Scanner) {
     this.source = source;
     this.options = options;
@@ -58,6 +65,18 @@ class Scanner {
     this.info.time.elapsed = (Date.now() - start);
     return new Stream(this.tokens.slice());
   }
+  /*
+    @method {location} - Marks the locations.
+    @return {{ start: () => void, end: () => Range, eof: () => Range }} - The location helpers.
+    @example: javascript {
+      //...
+      scanner.scan(ch => {
+        this.location().start();
+        //...
+        this.location().end();
+      });
+    }
+  */
   public location(): { start: () => void, end: () => Range, eof: () => Range } {
     const { line, column } = this;
     return {
@@ -75,14 +94,20 @@ class Scanner {
       }
     };
   }
+  /*
+    @return {string | number} - The previous character.
+   */
   public previous(): string | number {
     if (this.stack.length === 0) return;
     this.pop();
     let { line, column } = this.stack[this.stack.length - 1];
     this.line = line;
     this.column = column;
-    return this.source.charAt(this.source.position--);
+    return this.source.charAt(--this.source.position);
   }
+  /*
+    @return {string | number} - The next character.
+   */
   public next(): string | number {
     // If we are at the end or over the length
     // of the source then return EOF
@@ -103,9 +128,17 @@ class Scanner {
     }
     return this.source.charAt(this.source.position++);
   }
+  /*
+    @param {peek = 0} - The number of steps to peek backward.
+    @return {string | number} - The previous character(s) to peek.
+   */
   public peekBack(peek = 0): string | number {
     return this.source.charAt(this.source.position - peek);
   }
+  /*
+    @param {peek = 0} - The number of steps to peek forward.
+    @return {string | number} - The next character(s) to peek.
+   */
   public peek(peek = 0): string | number {
     // If we peek and the we reach the end or over
     // the length then return EOF
@@ -114,6 +147,9 @@ class Scanner {
     }
     return this.source.charAt(this.source.position + peek);
   }
+  /*
+    @method {ignoreWhiteSpace} - Ignores the whitespaces in the source.
+   */
   private ignoreWhiteSpace() {
     if (!this.options.ignore.whitespace) {
       if (this.options.override.whitespace &&
@@ -122,12 +158,15 @@ class Scanner {
         while (isWhiteSpace(this.peek())) {
           this.next();
         }
-      } else while (Utils.Code.isWhiteSpace(this.peek())) {
-        this.next();
       }
+    } else while (Utils.Code.isWhiteSpace(this.peek())) {
+      this.next();
     }
     return;
   }
+  /*
+    @method {push} - Pushes the current charater and location into the history stack.
+   */
   private push() {
     this.stack.push({
       char: this.source.charAt(this.source.position),
@@ -136,6 +175,9 @@ class Scanner {
       }
     });
   }
+  /*
+    @method {pop} - Pops the previous charater and location from the history stack.
+   */
   private pop() {
     this.stack.pop();
   }
