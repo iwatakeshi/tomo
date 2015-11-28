@@ -44,7 +44,7 @@ module Token {
         * Token `stype` are camel cased when normalized.
       }
      */
-    constructor (type?: TokenType, value?:string, location?: { start: Location, end: Location }) {
+    constructor(type?: TokenType, value?: string, location?: { start: Location, end: Location }) {
       this.type = type;
       this.stype = this.typeToString();
       this.value = value;
@@ -58,7 +58,7 @@ module Token {
         let type = Token.stringToType('Identifier');
       }
      */
-    public static stringToType(str: string) : TokenType {
+    public static stringToType(str: string): TokenType {
       let type: TokenType;
       [
         'Identifier',
@@ -70,8 +70,8 @@ module Token {
         'Whitespace',
         'End',
         'Error'
-      ].forEach(function(t){
-        if(str.indexOf(t) > -1) type = TokenType[t];
+      ].forEach(function(t) {
+        if (str.indexOf(t) > -1) type = TokenType[t];
       });
       return type;
     }
@@ -87,19 +87,19 @@ module Token {
           when 'SemiColon' which => 'Semicolon'.
       }
      */
-    public static typeToString(type: TokenType, prepend?: string) : string {
-      const normalize = (str:string) : string => {
-        if(!str) {
+    public static typeToString(type: TokenType, prepend?: string): string {
+      const normalize = (str: string): string => {
+        if (!str) {
           return '';
         }
-        if(str.match(/[ -_]/g)) {
+        if (str.match(/[ -_]/g)) {
           return str.replace(/[-_]/g, ' ')
-          .split(' ')
-          .map(s => s[0].toUpperCase() + s.substring(1, s.length).toLowerCase())
-          .join('');
+            .split(' ')
+            .map(s => s[0].toUpperCase() + s.substring(1, s.length).toLowerCase())
+            .join('');
         } else return str[0].toUpperCase() + str.substring(1, str.length).toLowerCase();
       };
-      switch(type) {
+      switch (type) {
         case TokenType.Identifier:
           return 'Identifier';
         case TokenType.Reserved:
@@ -136,15 +136,15 @@ module Token {
       @param {type: enum TokenType} - The token type.
       @return {class Token}
     */
-    public setType (type:TokenType) {
+    public setType(type: TokenType) {
       this.type = type;
       return this;
     }
-     /*
-      @param {location: class Location} - The token's location.
-      @return {class Token}
-    */
-    public setLocation (location) {
+    /*
+     @param {location: class Location} - The token's location.
+     @return {class Token}
+   */
+    public setLocation(location) {
       this.loc = location;
       return this;
     }
@@ -152,30 +152,45 @@ module Token {
       @param {location: class Location} - The token's character value.
       @return {class Token}
     */
-    public setValue (value) {
+    public setValue(value) {
       this.value = value;
       return this;
     }
     /* @return {object: { start: class Location, end: class Location }} - The token's location. */
-    public location () : { start: Location, end: Location } {
+    public location(): { start: Location, end: Location } {
       return this.loc;
     }
     /* @see {static Token.typeToString()} */
-    public typeToString() : string {
+    public typeToString(): string {
       return Token.typeToString(this.type, this.pvalue);
     }
+    /*
+      @param {t: TokenType | string | Token} - The type or token to compare.
+      @return {boolean} - Determines whether the token is equal to the type.
+    */
+    public isEqual(t: TokenType | string | Token, value?: string): boolean {
+      const isEqual = () : boolean => {
+        if (typeof t === 'string') {
+          return t === (this.stype || Token.stringToType(t) === this.type);
+        } else if(t instanceof Token) {
+          return t.type === this.type || t.stype === this.stype;
+        } else return t === this.type;
+      };
+      if(value) return this.value === value && isEqual();
+      else return isEqual();
+    }
     /* @return {string} - The string representation of the Token class. */
-    public toString () : string {
+    public toString(): string {
       return `token type: ${ this.type }, value: ${ this.value }`;
     }
     /* @return {object} - The JSON representation of the Token class. */
-    public toJSON () : {} {
+    public toJSON(): {} {
       let { start, end } = this.loc;
       start = start.toJSON();
       end = end.toJSON();
-      return  {
+      return {
         token: {
-          type: { key: this.type, value: this.stype},
+          type: { key: this.type, value: this.stype },
           value: this.value,
           location: {
             start: start,
