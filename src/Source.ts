@@ -22,7 +22,7 @@ class Source {
     }
    */
   constructor(source?: string | any, options: any = { isCharCode: true }) {
-    this.EOF = options.isCharCode ? '\0'.charCodeAt(0) : '0';
+    this.EOF = options.isCharCode ? '\0'.charCodeAt(0) : '\0';
     if (typeof source === 'string') {
       source = source[source.length - 1] === this.EOF ?
         source : source += this.EOF;
