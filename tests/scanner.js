@@ -48,7 +48,8 @@ describe('Scanner', function () {
         'Identifier',
         'Operator',
         'Literal',
-        'Punctuation'
+        'Punctuation',
+        'End'
       ];
       stream.forEach((token, i) => assert.strictEqual(token.type, TokenType[tokens[i]]));
     });
