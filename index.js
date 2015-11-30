@@ -1,3 +1,5 @@
+'use strict';
+let Cherry = {};
 const Scanner     = require('./lib/Scanner').default,
       Parser      = require('./lib/Parser').default,
       Source      = require('./lib/Source').default,
@@ -7,9 +9,16 @@ const Scanner     = require('./lib/Scanner').default,
       Range       = require('./lib/Location').Range,
       Collections = require('./lib/Collections').default,
       Utils       = require('./lib/Utils').default;
+
       
-module.exports = { 
+Cherry = { 
   Scanner, Parser, Source, 
   Tokenize, Collections, Utils, 
   Stream, Location, Range
 };
+
+if(window) {
+  window.Cherry = Cherry;
+  window.cherry = Cherry;
+}
+else module.exports = Cherry;

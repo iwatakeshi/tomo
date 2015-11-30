@@ -1,5 +1,7 @@
 const gulp = require('gulp'),
   mocha = require('gulp-mocha'),
+  browserify = require('browserify'),
+  through = require('through2'),
   clean = require('gulp-clean'),
   del = require('del'),
   minst = require('minimist'),
@@ -46,11 +48,18 @@ gulp.task('compile', () => {
     .pipe(gulp.dest('lib/'));
 });
 
+gulp.task('browserify', ['remove:lib.src'], () => {
+  return gulp.src('./index.js')
+    .pipe(through.obj((file, enc, next) => browserify(file.path)
+    .bundle((error, result)=>{ file.contents = result; next(null, file); })))
+    .pipe(gulp.dest('./dist'));
+});
+
 gulp.task('test', () => {
   return gulp.src('tests/*.js', { read: false })
-    .pipe(mocha({reporter: 'spec'}));
+    .pipe(mocha({ reporter: 'spec' }));
 });
 
 gulp.task('default', ['build']);
 
-gulp.task('build', ['compile', 'copy:lib.src', 'remove:lib.src']);
+gulp.task('build', ['compile', 'copy:lib.src', 'remove:lib.src', 'browserify']);

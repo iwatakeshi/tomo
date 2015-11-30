@@ -56,7 +56,8 @@ const stream = scanner.scan(function (ch) {
   else if (isIdentifier(ch)) return scan.identifier.call(this, ch);
 });
 
-stream.forEach(console.log);
+stream.forEach(i => console.log(i.toJSON()));
+console.log(`Time elapsed: ${scanner.info.time.elapsed} ms`);
 
 // const parser = new Parser(stream);
 
