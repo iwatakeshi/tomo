@@ -1,28 +1,39 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
-'use strict';
-let Cherry = {};
-const Scanner     = require('./lib/Scanner').default,
-      Parser      = require('./lib/Parser').default,
-      Source      = require('./lib/Source').default,
-      Tokenize    = require('./lib/Token').default,
-      Stream      = require('./lib/Stream').default,
-      Location    = require('./lib/Location').default,
-      Range       = require('./lib/Location').Range,
-      Collections = require('./lib/Collections').default,
-      Utils       = require('./lib/Utils').default;
+const isBrowser = typeof window !== 'undefined';
+const isNode = (typeof module !== 'undefined' && module.exports);
+(function() {
+  var Cherry = {};
+  var Scanner = require('./lib/Scanner').default,
+    Parser = require('./lib/Parser').default,
+    Source = require('./lib/Source').default,
+    Tokenize = require('./lib/Token').default,
+    Stream = require('./lib/Stream').default,
+    Location = require('./lib/Location').default,
+    Range = require('./lib/Location').Range,
+    Collections = require('./lib/Collections').default,
+    Utils = require('./lib/Utils').default;
 
-      
-Cherry = { 
-  Scanner, Parser, Source, 
-  Tokenize, Collections, Utils, 
-  Stream, Location, Range
-};
 
-if(window) {
-  window.Cherry = Cherry;
-  window.cherry = Cherry;
-}
-else module.exports = Cherry;
+  Cherry = {
+    Scanner, Parser, Source,
+    Tokenize, Collections, Utils,
+    Stream, Location, Range
+  };
+  /************************************
+      Exposing Cherry
+  ************************************/
+
+  // CommonJS module is defined
+  if(isNode) module.exports = Cherry;
+  if(isBrowser) window.cherry = window.Cherry = Cherry;
+
+  /*global define:false */
+  if (typeof define === 'function' && define.amd) {
+    define([], function() {
+      return Cherry;
+    });
+  }
+}).call(this);
 },{"./lib/Collections":2,"./lib/Location":3,"./lib/Parser":5,"./lib/Scanner":6,"./lib/Source":7,"./lib/Stream":8,"./lib/Token":9,"./lib/Utils":10}],2:[function(require,module,exports){
 'use strict';
 /*
