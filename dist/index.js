@@ -397,7 +397,7 @@ var Parser = (function () {
             var start = Date.now();
             var token;
             var ast = {};
-            while (!((token = this.stream.next()).isEqual(TokenType.End))) {
+            while (!((token = this.stream.peek(0)).isEqual(TokenType.End))) {
                 ast = parser.call(this, token, ast);
             }
             this.info.time.elapsed = (Date.now() - start);
@@ -552,7 +552,7 @@ var Scanner = (function () {
         this.line = 1;
         this.column = 0;
         this.range = new Location_1.Range();
-        this.info = { time: { elapsed: 0 } };
+        this.info = { time: { elapsed: 0 }, file: { name: source.name, length: source.length } };
     }
     /*
       @method {scan} - Calls the tokenizer as it scans through the source.
@@ -609,7 +609,7 @@ var Scanner = (function () {
             eof: function () {
                 _this.location().start();
                 return _this.location().end();
-            }
+            }, line: line, column: column
         };
     };
     /*

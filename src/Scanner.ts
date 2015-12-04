@@ -7,7 +7,7 @@ import Tokenize from './Token';
 /* @class {Scanner} - Creates a scanner object. */
 class Scanner {
   /** The information about the Scanner */
-  public info: { time: { elapsed: Date | number } };
+  public info: { time: { elapsed: Date | number }, file: { name: string, length: number } };
   /** The source object */
   private source: Source;
   /** The options */
@@ -37,7 +37,7 @@ class Scanner {
     this.line = 1;
     this.column = 0;
     this.range = new Range();
-    this.info = { time: { elapsed: 0 } };
+    this.info = { time: { elapsed: 0 }, file: { name: source.name, length: source.length } };
   }
   /*
     @method {scan} - Calls the tokenizer as it scans through the source.
@@ -77,7 +77,7 @@ class Scanner {
       });
     }
   */
-  public location(): { start: () => void, end: () => Range, eof: () => Range } {
+  public location(): { start: () => void, end: () => Range, eof: () => Range, line: number, column: number } {
     const { line, column } = this;
     return {
       start: (): void => {
@@ -91,7 +91,7 @@ class Scanner {
       eof: (): Range => {
         this.location().start();
         return this.location().end();
-      }
+      }, line, column
     };
   }
   /*

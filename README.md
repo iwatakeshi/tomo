@@ -11,16 +11,6 @@ Cherry is a small generic lexer and parser that started out of curiousity on how
 a [discussion](https://github.com/mr-doc/mr-doc/issues/94) appeared on [Mr. Doc's](https://github.com/mr-doc/) issue about creating a parser that
 replaces Mr. Doc's current core ([Dox](https://github.com/tj/dox)). If this succeeds, it will mean that Mr. Doc can generate documentation for any language*.
 
-Due to the fact that I have self studied about lexing and parsing, it is quite possible that the way I've implemented the lexer and parser may be incorrect but since
-this is an open source project I encourage you to point out to me those mistakes (in layman's terms).
-
-As of right now, the areas where I lack knowledge is in parsing and creating a symbol table (if necessary such as in the 
-[source code for VSCode](https://github.com/Microsoft/vscode/blob/master/src/vs/languages/css/common/parser/cssSymbols.ts)). 
-From what I do know, parsing deals with Nodes and grammars. I've seen BNF for grammar but the only source that I found about transforming
-BNF to code [is written in Python](http://parsingintro.sourceforge.net/) which is an awkward language IMO. Therefore I am struggling to create
-a parser that is somewhat object oriented yet small enough for others to understand. If you have the time, please contact me and share your
-great skills with me to make this project happen! :)
-
 \* It will depend on the parser.
 
 

@@ -15,7 +15,7 @@ class Parser {
       let start = Date.now();
       let token: Tokenize.Token;
       let ast = {};
-      while (!((token = this.stream.next()).isEqual(TokenType.End))) {
+      while (!((token = this.stream.peek(0)).isEqual(TokenType.End))) {
         ast = parser.call(this, token, ast);
       }
       this.info.time.elapsed = (Date.now() - start);
