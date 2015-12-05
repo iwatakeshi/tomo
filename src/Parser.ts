@@ -13,11 +13,8 @@ class Parser {
   public parse(parser) {
     if (typeof parser === 'function') {
       let start = Date.now();
-      let token: Tokenize.Token;
       let ast = {};
-      while (!((token = this.stream.peek(0)).isEqual(TokenType.End))) {
-        ast = parser.call(this, token, ast);
-      }
+        ast = parser.call(this);
       this.info.time.elapsed = (Date.now() - start);
       return ast;
     }
@@ -44,74 +41,33 @@ class Parser {
       };
     } else return this.lookBack(1).location();
   }
-  public match(type: Tokenize.TokenType | string, ...arg) {
-    const current = this.peek();
-    switch (arg.length) {
-      case 0:
-        return current && current.isEqual(type);
-      case 1:
-        if (typeof arg[0] === 'string') {
-          return current && current.isEqual(type, arg[0]);
-        } else {
-          const ahead = this.peek(1);
-          return current && current.isEqual(type) &&
-           ahead && ahead.isEqual(arg[0]);
-        }
-    }
+  public match(type: Tokenize.TokenType | string, value?: string) {
+    // Get the current token
+    let current = this.peek();
+    if ((type || typeof type === 'number') && (!value || value === null)) 
+      return current && current.isEqual(type);
+    if ((type || typeof type === 'number') && value) 
+      return current && current.isEqual(type, value);
   }
-  public matchAny(...arg) {
-    return (Array.isArray(arg[0]) ? arg[0] : arg)
-    .map(type => this.peek().isEqual(type))
-    .filter(truth => truth === false)
-    .length > 1 ? false : true;
-  }
-  public accept(type: Tokenize.TokenType | string, ...arg) {
-    const current = this.peek();
-    switch (arg.length) {
-      case 0:
-        if (current && current.isEqual(type)) {
-          this.next();
-          return true;
-        } else return false;
-      case 1:
-        if (typeof arg[0] === 'string') {
-          if (current && current.isEqual(type, arg[0])) {
-            this.next();
-            return true;
-          } else return false;
-        } else {
-          if (current && current.isEqual(type)) {
-            arg[0] = this.next();
-            return true;
-          } else return false;
-        }
+  /*
+    Match any should match the tokens with "||" (or)
+   */
+  public matchAny(array: Array<Array<any>>) : boolean {
+    let results: Array<any> = [];
+    for (let i = 0; i < array.length; i++) {
+      results.push(this.match.apply(this, array[i]));
     }
+    return results.indexOf(true) > -1;
+  }
+  public expect(type: Tokenize.TokenType | string, value?: string) {
+    const token = this.peek();
+    if (this.match(type, value)) this.next();
+    else throw new Error(`ACParser [error]: Expected type "${Token.typeToString(<Tokenize.TokenType>type)}"" but received "${token.stype}"`);
   }
 
-  public expect(type: Tokenize.TokenType | string, value?: string) {
-    const ret: Tokenize.Token = value ? this.peek() : undefined;
-    if (this.accept(type, value ? value: ret)) return ret;
-    const offender: Tokenize.Token = this.next();
-    const expected = typeof type === 'string' ? Token.stringToType(type) : Token.typeToString(type);
-    if (offender) {
-      this.info.errors.push({
-        error: `Unexpected token: '${offender.typeToString() }'. Expected token: ${ expected }`,
-        type: 'ParseError',
-        location: offender.location()
-      });
-    } else {
-      this.info.errors.push({
-        error: `Unexpected end of stream. Expected token: ${ expected }`,
-        type: 'ParseError',
-        location: offender.location()
-      });
-      throw new Error();
-    }
-    return new Token(typeof expected === 'string' ? Token.stringToType(expected) : expected, '', this.location());
-  }
   public raise(message?:string) {
     this.info.errors.push({
-      error: `Unexpected token: ${this.next().typeToString()}`,
+      error: `ACParser [error]: Unexpected token: ${this.peek().typeToString()}`,
       type: 'ParseError',
       message: message ? message : '',
       location: this.location()

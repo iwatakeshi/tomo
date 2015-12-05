@@ -8,10 +8,10 @@ class Source {
   public name: string;
   /** The end of file character */
   public EOF: string | number;
+  /** The source file */
+  public source: string;
   /** The options */
   private options: any;
-  /** The source file */
-  private source: string;
   /*
     @param {source?:string} - The source file.
     @param {options:any} - The options.

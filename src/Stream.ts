@@ -33,7 +33,7 @@ class Stream {
   public next(): Tokenize.Token {
     if (this.position >= this.stream.length)
       return new Tokenize.Token(Tokenize.TokenType.End);
-    return this.stream[this.position++];
+    return this.stream[++this.position];
   }
   /*
    @method {peek} - Looks ahead by n tokens.

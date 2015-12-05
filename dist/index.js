@@ -395,11 +395,8 @@ var Parser = (function () {
     Parser.prototype.parse = function (parser) {
         if (typeof parser === 'function') {
             var start = Date.now();
-            var token;
             var ast = {};
-            while (!((token = this.stream.peek(0)).isEqual(TokenType.End))) {
-                ast = parser.call(this, token, ast);
-            }
+            ast = parser.call(this);
             this.info.time.elapsed = (Date.now() - start);
             return ast;
         }
@@ -430,96 +427,34 @@ var Parser = (function () {
         else
             return this.lookBack(1).location();
     };
-    Parser.prototype.match = function (type) {
-        var arg = [];
-        for (var _i = 1; _i < arguments.length; _i++) {
-            arg[_i - 1] = arguments[_i];
-        }
+    Parser.prototype.match = function (type, value) {
+        // Get the current token
         var current = this.peek();
-        switch (arg.length) {
-            case 0:
-                return current && current.isEqual(type);
-            case 1:
-                if (typeof arg[0] === 'string') {
-                    return current && current.isEqual(type, arg[0]);
-                }
-                else {
-                    var ahead = this.peek(1);
-                    return current && current.isEqual(type) &&
-                        ahead && ahead.isEqual(arg[0]);
-                }
-        }
+        if ((type || typeof type === 'number') && (!value || value === null))
+            return current && current.isEqual(type);
+        if ((type || typeof type === 'number') && value)
+            return current && current.isEqual(type, value);
     };
-    Parser.prototype.matchAny = function () {
-        var _this = this;
-        var arg = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            arg[_i - 0] = arguments[_i];
+    /*
+      Match any should match the tokens with "||" (or)
+     */
+    Parser.prototype.matchAny = function (array) {
+        var results = [];
+        for (var i = 0; i < array.length; i++) {
+            results.push(this.match.apply(this, array[i]));
         }
-        return (Array.isArray(arg[0]) ? arg[0] : arg)
-            .map(function (type) { return _this.peek().isEqual(type); })
-            .filter(function (truth) { return truth === false; })
-            .length > 1 ? false : true;
-    };
-    Parser.prototype.accept = function (type) {
-        var arg = [];
-        for (var _i = 1; _i < arguments.length; _i++) {
-            arg[_i - 1] = arguments[_i];
-        }
-        var current = this.peek();
-        switch (arg.length) {
-            case 0:
-                if (current && current.isEqual(type)) {
-                    this.next();
-                    return true;
-                }
-                else
-                    return false;
-            case 1:
-                if (typeof arg[0] === 'string') {
-                    if (current && current.isEqual(type, arg[0])) {
-                        this.next();
-                        return true;
-                    }
-                    else
-                        return false;
-                }
-                else {
-                    if (current && current.isEqual(type)) {
-                        arg[0] = this.next();
-                        return true;
-                    }
-                    else
-                        return false;
-                }
-        }
+        return results.indexOf(true) > -1;
     };
     Parser.prototype.expect = function (type, value) {
-        var ret = value ? this.peek() : undefined;
-        if (this.accept(type, value ? value : ret))
-            return ret;
-        var offender = this.next();
-        var expected = typeof type === 'string' ? Token.stringToType(type) : Token.typeToString(type);
-        if (offender) {
-            this.info.errors.push({
-                error: "Unexpected token: '" + offender.typeToString() + "'. Expected token: " + expected,
-                type: 'ParseError',
-                location: offender.location()
-            });
-        }
-        else {
-            this.info.errors.push({
-                error: "Unexpected end of stream. Expected token: " + expected,
-                type: 'ParseError',
-                location: offender.location()
-            });
-            throw new Error();
-        }
-        return new Token(typeof expected === 'string' ? Token.stringToType(expected) : expected, '', this.location());
+        var token = this.peek();
+        if (this.match(type, value))
+            this.next();
+        else
+            throw new Error("ACParser [error]: Expected type \"" + Token.typeToString(type) + "\"\" but received \"" + token.stype + "\"");
     };
     Parser.prototype.raise = function (message) {
         this.info.errors.push({
-            error: "Unexpected token: " + this.next().typeToString(),
+            error: "ACParser [error]: Unexpected token: " + this.peek().typeToString(),
             type: 'ParseError',
             message: message ? message : '',
             location: this.location()
@@ -552,7 +487,15 @@ var Scanner = (function () {
         this.line = 1;
         this.column = 0;
         this.range = new Location_1.Range();
-        this.info = { time: { elapsed: 0 }, file: { name: source.name, length: source.length } };
+        this.info = {
+            time: { elapsed: 0 },
+            file: {
+                name: source.name,
+                length: source.length,
+                source: source.source,
+                position: source.position
+            }
+        };
     }
     /*
       @method {scan} - Calls the tokenizer as it scans through the source.
@@ -584,7 +527,13 @@ var Scanner = (function () {
     };
     /*
       @method {location} - Marks the locations.
-      @return {{ start: () => void, end: () => Range, eof: () => Range }} - The location helpers.
+      @return {
+        {
+          start: () => void,
+          end: () => Range,
+          eof: () => Range
+        }
+      } - The location helpers.
       @example: javascript {
         //...
         scanner.scan(ch => {
@@ -636,8 +585,7 @@ var Scanner = (function () {
         // If we reach a new line then
         // increment the line and reset the column
         // else increment the column
-        if (this.source.charAt(this.source.position) === '\n' ||
-            this.source.charAt(this.source.position) === '\n'.charCodeAt(0)) {
+        if (Utils_1["default"].Code.isLineTermintor(this.source.charAt(this.source.position))) {
             this.line++;
             this.column = 0;
             this.push();
@@ -797,7 +745,7 @@ var Stream = (function () {
     Stream.prototype.next = function () {
         if (this.position >= this.stream.length)
             return new Token_1["default"].Token(Token_1["default"].TokenType.End);
-        return this.stream[this.position++];
+        return this.stream[++this.position];
     };
     /*
      @method {peek} - Looks ahead by n tokens.

@@ -1,6 +1,6 @@
 'use strict';
 /**
- * The AC (Adding Calculator) language from Crafting a Compiler
+ * The AC (Adding Calculator) language from 'Crafting a Compiler'
  * by Charles N. Fischer
  */
 const Tokenize = require('../').Tokenize;
@@ -48,11 +48,11 @@ const scan = {
   }
 };
 
-const source = new Source('f x = 23.3', { isCharCode: false });
+const source = new Source('f b   i a   a = 5   b = a + 3.2   p b', { isCharCode: false });
 // Quick and dirty scanner
 const scanner = new Scanner(source);
 
-const stream = scanner.scan(function (ch) {
+const stream = scanner.scan(function ACScanner(ch) {
   this.location().start();
   if (ch === '\0') return scan.eof.call(this, ch);
   else {
@@ -76,15 +76,16 @@ const stream = scanner.scan(function (ch) {
       case '5': case '6': case '7': case '8': case '9':
         return scan.number.call(this, ch);
       default:
-        const message = `AC [error]: Encountered an invalid character "${ this.peek() }"`;
-        throw new SyntaxError(message, this.info.file.name, this.location().line);
+        const { line, column} = this.location();
+        const message = `AC [error]: Encountered an invalid character "${ this.peek() }" on line ${line}, column ${column}`;
+        throw (new Error(message)).stack;
         break;
     }
   }
 });
 
-// stream.forEach(i => console.log(i.toJSON()));
-console.log(`Time elapsed: ${scanner.info.time.elapsed} ms`);
+stream.forEach(i => console.log(i.toJSON()));
+console.log(`ACScanner [info]: time elapsed - ${scanner.info.time.elapsed} ms`);
 
 const parser = new Parser(stream);
 let parse = {
@@ -93,58 +94,68 @@ let parse = {
           | λ
    */
   declarations: function () {
-    console.log('procedure: declarations')
-    if(this.match(TokenType.Reserved, 'f') || this.match(TokenType.Reserved, 'i')) {
+    console.log('procedure: declarations');
+    const tokens = [
+      [TokenType.Reserved, 'f'], 
+      [TokenType.Reserved, 'i']
+    ];
+    if(this.matchAny(tokens)) {
       parse.declaration();
       parse.declarations();
-    } else return;
+    } else if(this.matchAny([
+        [TokenType.Identifier],
+        [TokenType.Reserved, 'p'],
+        [TokenType.End]
+      ])) { /* NOOP */ }
+    else this.raise('AC [error]: Expected "f (Reserved)", "i (Reserved)", "Identifier", "p (Reserved)", or "End"');
   },
   /*
-    Dcl -> floatdcl
-         | intdcl
+    Dcl -> floatdcl id
+         | intdcl id
    */
   declaration: function () {
-    console.log('procedure: declaration')
+    console.log('procedure: declaration');
     if(this.match(TokenType.Reserved, 'f')) {
-      this.accept(TokenType.Reserved, 'f');
-      // this.expect(TokenType.Identifier);
+      this.expect(TokenType.Reserved, 'f');
+      this.expect(TokenType.Identifier);
     } else if(this.match(TokenType.Reserved, 'i')) {
-      this.accept(TokenType.Reserved, 'i');
-      // this.expect(TokenType.Identifier);
-    } else return;
+      this.expect(TokenType.Reserved, 'i');
+      this.expect(TokenType.Identifier);
+    } else this.raise('AC [error]: Expected float or int declaration');
   },
   /*
     Stmts -> Stmt Stmts
            | λ
    */
   statements: function  () {
-    console.log('procedure: statements')
-    if(this.match(TokenType.Identifier) || this.match(TokenType.Reserved, 'p')) {
+    console.log('procedure: statements');
+    const tokens = [
+      [TokenType.Identifier],
+      [TokenType.Reserved, 'p']
+    ];
+    if(this.matchAny(tokens)) {
       parse.statement();
       parse.statements();
-    }
-    else if(this.match(TokenType.End)) {
-      return;
-    } else throw new Error(`AC [error]: Encountered an invalid token "${this.peek().stype}"`);
+    } else if (this.match(TokenType.End)) {
+      /* NOOP */
+    } else this.raise(`AC [error]: Expected "Identifier", "p (Operator)", or "End"`);
   },
   /*
     Stmt -> id assign (operator) Val Expr
           | print id
    */
   statement: function () {
-    console.log('procedure: statement')
-    // console.log(this.peek());
+    console.log('procedure: statement');
     if(this.match(TokenType.Identifier)) {
-      this.accept(TokenType.Identifier);
+      this.expect(TokenType.Identifier);
       this.expect(TokenType.Operator, '=');
       parse.val();
       parse.expression();
-    } else {
-      if(this.match(TokenType.Reserved, 'p')) {
-        this.accept(TokenType.Reserved, 'p');
-        this.expect(TokenType.Identifier);
-      } else throw new Error(`AC [error]: Encountered an invalid token "${this.peek().stype}" and expected "p"`);
-    }
+    } else if(this.match(TokenType.Reserved, 'p')) {
+      this.expect(TokenType.Reserved, 'p');
+      this.expect(TokenType.Identifier);
+    } else this.raise('AC [error]: Expected "Identifier" or "p (Operator)"');
+    
   },
   /*
     Expr -> plus (operator) Val Expr
@@ -152,14 +163,21 @@ let parse = {
           | λ
    */
   expression: function  () {
-    console.log('procedure: expression')
+    console.log('procedure: expression');
     if(this.match(TokenType.Operator, '+')) {
+      this.expect(TokenType.Operator, '+');
       parse.val();
       parse.expression()
     } else if(this.match(TokenType.Operator, '-')) {
+      this.expect(TokenType.Operator, '-');
       parse.val();
       parse.expression();
-    } else return;
+    } else if(this.matchAny([
+      [TokenType.Identifier],
+      [TokenType.Reserved, 'p'],
+      [TokenType.End]
+    ])) { /* NOOP */}
+    else this.raise('AC [error]: Expected "+ (Operator)" , "- (Operator)", "Identifier", "p (Reserved)", or "End"')
   },
   /*
     Val -> id
@@ -167,23 +185,35 @@ let parse = {
          | fnum (float literal)
    */
   val: function  () {
-    console.log('procedure: val')
+    console.log('procedure: val');
     if(this.match(TokenType.Identifier)) 
-      this.accept(TokenType.Identifier);
+      this.expect(TokenType.Identifier);
     else if(this.match(Token.typeToString(TokenType.Literal, 'Int')))
-      this.accept(Token.typeToString(TokenType.Literal, 'Int'));
+      this.expect(Token.typeToString(TokenType.Literal, 'Int'));
     else if(this.match(Token.typeToString(TokenType.Literal, 'Float')))
-      this.accept(Token.typeToString(TokenType.Literal, 'Float'));
-    else return;
+      this.expect(Token.typeToString(TokenType.Literal, 'Float'));
+    else this.raise('AC [error]: Expected "Identifier", "Int Literal", or "Float Literal"');
   }
 };
 
 parse = _.mapValues(parse, value => value.bind(parser));
-
-const tree = parser.parse(function(token, ast){
+console.log('source to parse: ', scanner.info.file.source);
+const tree = parser.parse(function(token){
+  console.log('procedure: program');
   /* Begin program */
-  if(ast.root) ast.root = { name: 'Program' };
-  parse.declarations(ast);
-  parse.statements(ast);
-  return ast;
+  const tokens = [
+      [TokenType.Reserved, 'f'], 
+      [TokenType.Reserved, 'i'],
+      [TokenType.Identifier],
+      [TokenType.Reserved, 'p'],
+      [TokenType.End]
+    ];
+  if(this.matchAny(tokens)) {
+    parse.declarations();
+    parse.statements();
+    this.expect(TokenType.End);
+  } else this.raise('AC [error]: Expected "f (Reserved)", "i (Reserved)", "Identifier", "p (Reserved)", or "End"');
+  return;
 });
+console.log(`ACParser [info]: elapsed time - ${parser.info.time.elapsed} ms with ${parser.info.errors.length} errors.`);
+console.log(parser.info.errors.length > 0 ? parser.info.errors : '');

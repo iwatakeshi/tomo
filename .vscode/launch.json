@@ -5,7 +5,7 @@
 			"name": "Launch",
 			"type": "node",
 			"request": "launch",
-			"program": "examples/parser.js",
+			"program": "example/index.js",
 			"stopOnEntry": false,
 			"args": [],
 			"cwd": ".",

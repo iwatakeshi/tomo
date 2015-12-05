@@ -7,7 +7,10 @@ import Tokenize from './Token';
 /* @class {Scanner} - Creates a scanner object. */
 class Scanner {
   /** The information about the Scanner */
-  public info: { time: { elapsed: Date | number }, file: { name: string, length: number } };
+  public info: { 
+    time: { elapsed: Date | number }, 
+    file: { name: string, length: number, source: string, position: number } 
+  };
   /** The source object */
   private source: Source;
   /** The options */
@@ -37,7 +40,15 @@ class Scanner {
     this.line = 1;
     this.column = 0;
     this.range = new Range();
-    this.info = { time: { elapsed: 0 }, file: { name: source.name, length: source.length } };
+    this.info = { 
+      time: { elapsed: 0 }, 
+      file: { 
+        name: source.name, 
+        length: source.length, 
+        source: source.source,
+        position: source.position 
+      }
+    };
   }
   /*
     @method {scan} - Calls the tokenizer as it scans through the source.
@@ -67,7 +78,13 @@ class Scanner {
   }
   /*
     @method {location} - Marks the locations.
-    @return {{ start: () => void, end: () => Range, eof: () => Range }} - The location helpers.
+    @return {
+      { 
+        start: () => void, 
+        end: () => Range, 
+        eof: () => Range 
+      }
+    } - The location helpers.
     @example: javascript {
       //...
       scanner.scan(ch => {
@@ -117,8 +134,7 @@ class Scanner {
     // If we reach a new line then
     // increment the line and reset the column
     // else increment the column
-    if (this.source.charAt(this.source.position) === '\n' ||
-      this.source.charAt(this.source.position) === '\n'.charCodeAt(0)) {
+    if (Utils.Code.isLineTermintor(this.source.charAt(this.source.position))) {
       this.line++;
       this.column = 0;
       this.push();
