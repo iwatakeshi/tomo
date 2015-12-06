@@ -328,7 +328,6 @@
 
     stream.forEach(i => console.log(i.toJSON()));
     console.log(`ACScanner [info]: time elapsed - ${scanner.info.time.elapsed} ms - with ${scanner.info.errors.length} errors.`);
-
     const parser = new Parser(stream);
     let parse = {
       /*

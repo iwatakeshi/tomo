@@ -48,7 +48,7 @@ const scan = {
   }
 };
 
-const source = new Source('f b   i a   a = 5   b = a + 3.2   p b', { isCharCode: false });
+const source = new Source('f b   i a   a = 5   b = a / 3.2   c = a % b   p b', { isCharCode: false });
 // Quick and dirty scanner
 const scanner = new Scanner(source);
 
@@ -77,6 +77,8 @@ const stream = scanner.scan(function ACScanner(ch) {
         return scan.number.call(this, ch);
       default:
         this.raise(`ACScanner [error]: Unexpected character "${this.peek()}"`);
+        this.next();
+        return new Token(TokenType.Invalid, ch, this.location().end());
         break;
     }
   }
@@ -86,136 +88,140 @@ stream.forEach(i => console.log(i.toJSON()));
 console.log();
 console.log(`ACScanner [info]: time elapsed - ${scanner.info.time.elapsed} ms - with ${scanner.info.errors.length} errors.`);
 console.log();
+if(scanner.info.errors.length > 0) scanner.info.errors.forEach(error => {
+  console.log(error.message);
+  console.log(error.source);
+})
 
-const parser = new Parser(stream);
-let parse = {
-  /*
-    Dcls -> Dcl Dcls
-          | λ
-   */
-  declarations: function () {
-    console.log('procedure: declarations');
-    const tokens = [
-      [TokenType.Reserved, 'f'], 
-      [TokenType.Reserved, 'i']
-    ];
-    if(this.matchAny(tokens)) {
-      parse.declaration();
-      parse.declarations();
-    } else if(this.matchAny([
-        [TokenType.Identifier],
-        [TokenType.Reserved, 'p'],
-        [TokenType.End]
-      ])) { /* NOOP */ }
-    else this.raise('AC [error]: Expected "f (Reserved)", "i (Reserved)", "Identifier", "p (Reserved)", or "End"');
-  },
-  /*
-    Dcl -> floatdcl id
-         | intdcl id
-   */
-  declaration: function () {
-    console.log('procedure: declaration');
-    if(this.match(TokenType.Reserved, 'f')) {
-      this.expect(TokenType.Reserved, 'f');
-      this.expect(TokenType.Identifier);
-    } else if(this.match(TokenType.Reserved, 'i')) {
-      this.expect(TokenType.Reserved, 'i');
-      this.expect(TokenType.Identifier);
-    } else this.raise('AC [error]: Expected float or int declaration');
-  },
-  /*
-    Stmts -> Stmt Stmts
-           | λ
-   */
-  statements: function  () {
-    console.log('procedure: statements');
-    const tokens = [
-      [TokenType.Identifier],
-      [TokenType.Reserved, 'p']
-    ];
-    if(this.matchAny(tokens)) {
-      parse.statement();
-      parse.statements();
-    } else if (this.match(TokenType.End)) {
-      /* NOOP */
-    } else this.raise(`AC [error]: Expected "Identifier", "p (Operator)", or "End"`);
-  },
-  /*
-    Stmt -> id assign (operator) Val Expr
-          | print id
-   */
-  statement: function () {
-    console.log('procedure: statement');
-    if(this.match(TokenType.Identifier)) {
-      this.expect(TokenType.Identifier);
-      this.expect(TokenType.Operator, '=');
-      parse.val();
-      parse.expression();
-    } else if(this.match(TokenType.Reserved, 'p')) {
-      this.expect(TokenType.Reserved, 'p');
-      this.expect(TokenType.Identifier);
-    } else this.raise('AC [error]: Expected "Identifier" or "p (Operator)"');
+// const parser = new Parser(stream);
+// let parse = {
+//   /*
+//     Dcls -> Dcl Dcls
+//           | λ
+//    */
+//   declarations: function () {
+//     console.log('procedure: declarations');
+//     const tokens = [
+//       [TokenType.Reserved, 'f'], 
+//       [TokenType.Reserved, 'i']
+//     ];
+//     if(this.matchAny(tokens)) {
+//       parse.declaration();
+//       parse.declarations();
+//     } else if(this.matchAny([
+//         [TokenType.Identifier],
+//         [TokenType.Reserved, 'p'],
+//         [TokenType.End]
+//       ])) { /* NOOP */ }
+//     else this.raise('AC [error]: Expected "f (Reserved)", "i (Reserved)", "Identifier", "p (Reserved)", or "End"');
+//   },
+//   /*
+//     Dcl -> floatdcl id
+//          | intdcl id
+//    */
+//   declaration: function () {
+//     console.log('procedure: declaration');
+//     if(this.match(TokenType.Reserved, 'f')) {
+//       this.expect(TokenType.Reserved, 'f');
+//       this.expect(TokenType.Identifier);
+//     } else if(this.match(TokenType.Reserved, 'i')) {
+//       this.expect(TokenType.Reserved, 'i');
+//       this.expect(TokenType.Identifier);
+//     } else this.raise('AC [error]: Expected float or int declaration');
+//   },
+//   /*
+//     Stmts -> Stmt Stmts
+//            | λ
+//    */
+//   statements: function  () {
+//     console.log('procedure: statements');
+//     const tokens = [
+//       [TokenType.Identifier],
+//       [TokenType.Reserved, 'p']
+//     ];
+//     if(this.matchAny(tokens)) {
+//       parse.statement();
+//       parse.statements();
+//     } else if (this.match(TokenType.End)) {
+//       /* NOOP */
+//     } else this.raise(`AC [error]: Expected "Identifier", "p (Operator)", or "End"`);
+//   },
+//   /*
+//     Stmt -> id assign (operator) Val Expr
+//           | print id
+//    */
+//   statement: function () {
+//     console.log('procedure: statement');
+//     if(this.match(TokenType.Identifier)) {
+//       this.expect(TokenType.Identifier);
+//       this.expect(TokenType.Operator, '=');
+//       parse.val();
+//       parse.expression();
+//     } else if(this.match(TokenType.Reserved, 'p')) {
+//       this.expect(TokenType.Reserved, 'p');
+//       this.expect(TokenType.Identifier);
+//     } else this.raise('AC [error]: Expected "Identifier" or "p (Operator)"');
     
-  },
-  /*
-    Expr -> plus (operator) Val Expr
-          | minus (operator) Val Expr
-          | λ
-   */
-  expression: function  () {
-    console.log('procedure: expression');
-    if(this.match(TokenType.Operator, '+')) {
-      this.expect(TokenType.Operator, '+');
-      parse.val();
-      parse.expression()
-    } else if(this.match(TokenType.Operator, '-')) {
-      this.expect(TokenType.Operator, '-');
-      parse.val();
-      parse.expression();
-    } else if(this.matchAny([
-      [TokenType.Identifier],
-      [TokenType.Reserved, 'p'],
-      [TokenType.End]
-    ])) { /* NOOP */}
-    else this.raise('AC [error]: Expected "+ (Operator)" , "- (Operator)", "Identifier", "p (Reserved)", or "End"')
-  },
-  /*
-    Val -> id
-         | inum (integer literal)
-         | fnum (float literal)
-   */
-  val: function  () {
-    console.log('procedure: val');
-    if(this.match(TokenType.Identifier)) 
-      this.expect(TokenType.Identifier);
-    else if(this.match(Token.typeToString(TokenType.Literal, 'Int')))
-      this.expect(Token.typeToString(TokenType.Literal, 'Int'));
-    else if(this.match(Token.typeToString(TokenType.Literal, 'Float')))
-      this.expect(Token.typeToString(TokenType.Literal, 'Float'));
-    else this.raise('AC [error]: Expected "Identifier", "Int Literal", or "Float Literal"');
-  }
-};
+//   },
+  
+//     Expr -> plus (operator) Val Expr
+//           | minus (operator) Val Expr
+//           | λ
+   
+//   expression: function  () {
+//     console.log('procedure: expression');
+//     if(this.match(TokenType.Operator, '+')) {
+//       this.expect(TokenType.Operator, '+');
+//       parse.val();
+//       parse.expression()
+//     } else if(this.match(TokenType.Operator, '-')) {
+//       this.expect(TokenType.Operator, '-');
+//       parse.val();
+//       parse.expression();
+//     } else if(this.matchAny([
+//       [TokenType.Identifier],
+//       [TokenType.Reserved, 'p'],
+//       [TokenType.End]
+//     ])) { /* NOOP */}
+//     else this.raise('AC [error]: Expected "+ (Operator)" , "- (Operator)", "Identifier", "p (Reserved)", or "End"')
+//   },
+//   /*
+//     Val -> id
+//          | inum (integer literal)
+//          | fnum (float literal)
+//    */
+//   val: function  () {
+//     console.log('procedure: val');
+//     if(this.match(TokenType.Identifier)) 
+//       this.expect(TokenType.Identifier);
+//     else if(this.match(Token.typeToString(TokenType.Literal, 'Int')))
+//       this.expect(Token.typeToString(TokenType.Literal, 'Int'));
+//     else if(this.match(Token.typeToString(TokenType.Literal, 'Float')))
+//       this.expect(Token.typeToString(TokenType.Literal, 'Float'));
+//     else this.raise('AC [error]: Expected "Identifier", "Int Literal", or "Float Literal"');
+//   }
+// };
 
-parse = _.mapValues(parse, value => value.bind(parser));
-console.log('source to parse: ', scanner.info.file.source);
-console.log();
-const tree = parser.parse(function(token){
-  console.log('procedure: program');
-  /* Begin program */
-  const tokens = [
-      [TokenType.Reserved, 'f'], 
-      [TokenType.Reserved, 'i'],
-      [TokenType.Identifier],
-      [TokenType.Reserved, 'p'],
-      [TokenType.End]
-    ];
-  if(this.matchAny(tokens)) {
-    parse.declarations();
-    parse.statements();
-    this.expect(TokenType.End);
-  } else this.raise('AC [error]: Expected "f (Reserved)", "i (Reserved)", "Identifier", "p (Reserved)", or "End"');
-  return;
-});
-console.log();
-console.log(`ACParser [info]: elapsed time - ${parser.info.time.elapsed} ms with ${parser.info.errors.length} errors.`);
-console.log(parser.info.errors.length > 0 ? parser.info.errors : '');
+// parse = _.mapValues(parse, value => value.bind(parser));
+// console.log('source to parse: ', scanner.info.file.source);
+// console.log();
+// const tree = parser.parse(function(token){
+//   console.log('procedure: program');
+//   /* Begin program */
+//   const tokens = [
+//       [TokenType.Reserved, 'f'], 
+//       [TokenType.Reserved, 'i'],
+//       [TokenType.Identifier],
+//       [TokenType.Reserved, 'p'],
+//       [TokenType.End]
+//     ];
+//   if(this.matchAny(tokens)) {
+//     parse.declarations();
+//     parse.statements();
+//     this.expect(TokenType.End);
+//   } else this.raise('AC [error]: Expected "f (Reserved)", "i (Reserved)", "Identifier", "p (Reserved)", or "End"');
+//   return;
+// });
+// console.log();
+// console.log(`ACParser [info]: elapsed time - ${parser.info.time.elapsed} ms with ${parser.info.errors.length} errors.`);
+// console.log(parser.info.errors.length > 0 ? parser.info.errors : '');

@@ -630,10 +630,21 @@ var Scanner = (function () {
       @param {type?: string} - The type of error.
      */
     Scanner.prototype.raise = function (message, type) {
+        var source = '';
+        // Build the spaces and find the error
+        for (var i = 0; i < this.info.file.length; i++) {
+            var ch = this.info.file.source[i];
+            if (ch === this.info.file.source[this.position])
+                source += '^';
+            else
+                source += ' ';
+        }
+        source = this.info.file.source + '\n' + source;
         this.info.errors.push({
             error: "Unexpected character: " + this.peek(),
             type: type || 'ScanError',
             message: message || '',
+            source: source,
             location: { line: this.location().line, column: this.location().column }
         });
     };
@@ -825,7 +836,7 @@ var Token;
         TokenType[TokenType["Comment"] = 100] = "Comment";
         TokenType[TokenType["Whitespace"] = 50] = "Whitespace";
         TokenType[TokenType["End"] = 0] = "End";
-        TokenType[TokenType["Error"] = -1] = "Error";
+        TokenType[TokenType["Invalid"] = -1] = "Invalid";
     })(Token_1.TokenType || (Token_1.TokenType = {}));
     var TokenType = Token_1.TokenType;
     /* @export {class Token} - Creates a token object. */
@@ -868,7 +879,7 @@ var Token;
                 'Comment',
                 'Whitespace',
                 'End',
-                'Error'
+                'Invalid'
             ].forEach(function (t) {
                 if (str.indexOf(t) > -1)
                     type = TokenType[t];
@@ -916,8 +927,8 @@ var Token;
                     return normalize(prepend) + 'Comment';
                 case TokenType.Whitespace:
                     return 'Whitespace';
-                case TokenType.Error:
-                    return 'Error';
+                case TokenType.Invalid:
+                    return 'Invalid';
                 case TokenType.End:
                     return 'End';
             }

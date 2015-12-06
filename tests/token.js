@@ -15,7 +15,7 @@ describe('TokenType', () => {
     ['Comment', 100],
     ['Whitespace', 50],
     ['End', 0],
-    ['Error', -1]
+    ['Invalid', -1]
   ].map(type => ({ actual: TokenType[type[0]], expected: type[1] }));
 
   it('should export the token types', () => {
@@ -57,7 +57,7 @@ describe('Token', () => {
       'Comment',
       'Whitespace',
       'End',
-      'Error',
+      'Invalid',
     ].map(type => ({ actual: Token.typeToString(TokenType[type]), expected: type }));
     it('should transform the string to token type', function () {
       types.forEach(type => assert.strictEqual(type.actual, type.expected));
@@ -74,7 +74,7 @@ describe('Token', () => {
       ['Comment', 100],
       ['Whitespace', 50],
       ['End', 0],
-      ['Error', -1]
+      ['Invalid', -1]
     ].map(type => ({ actual: Token.stringToType(type[0]), expected: type[1] }));
 
     it('should transform the token type to string', () => {

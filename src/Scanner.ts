@@ -174,10 +174,19 @@ class Scanner {
     @param {type?: string} - The type of error.
    */
   public raise (message?: string, type?: string) {
+    let source = '';
+    // Build the spaces and find the error
+    for (let i = 0; i < this.info.file.length; i++) {
+      const ch = this.info.file.source[i];
+      if (ch === this.info.file.source[this.position]) source += '^';
+      else source += ' ';
+    }
+    source = this.info.file.source + '\n' + source;
     this.info.errors.push({
       error: `Unexpected character: ${this.peek()}`,
       type: type || 'ScanError',
       message: message || '',
+      source: source
       location: { line: this.location().line, column: this.location().column }
     });
   }

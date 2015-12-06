@@ -17,7 +17,7 @@ module Token {
     Comment = 100,
     Whitespace = 50,
     End = 0,
-    Error = -1
+    Invalid = -1
   }
   /* @export {class Token} - Creates a token object. */
   export class Token {
@@ -69,7 +69,7 @@ module Token {
         'Comment',
         'Whitespace',
         'End',
-        'Error'
+        'Invalid'
       ].forEach(function(t) {
         if (str.indexOf(t) > -1) type = TokenType[t];
       });
@@ -114,8 +114,8 @@ module Token {
           return normalize(prepend) + 'Comment';
         case TokenType.Whitespace:
           return 'Whitespace';
-        case TokenType.Error:
-          return 'Error';
+        case TokenType.Invalid:
+          return 'Invalid';
         case TokenType.End:
           return 'End';
       }
