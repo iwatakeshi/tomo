@@ -89,16 +89,14 @@
               case '5': case '6': case '7': case '8': case '9':
                 return scan.number.call(this, ch);
               default:
-                const { line, column} = this.location();
-                const message = `AC [error]: Encountered an invalid character "${ this.peek() }" on line ${line}, column ${column}`;
-                throw (new Error(message)).stack;
+                this.raise(`ACScanner [error]: Unexpected character "${this.peek()}"`);
                 break;
             }
           }
         });
 
         stream.forEach(i => console.log(i.toJSON()));
-        console.log(`ACScanner [info]: time elapsed - ${scanner.info.time.elapsed} ms`);
+        console.log(`ACScanner [info]: time elapsed - ${scanner.info.time.elapsed} ms with ${scanner.info.errors.length} errors.`);
       </code></pre>
     </div>
   </div>
@@ -115,7 +113,7 @@
         const Tokenize = Cherry.Tokenize;
         const Token = Tokenize.Token, TokenType = Tokenize.TokenType;
         const parser = new Parser(stream);
-        
+
         let parse = {
           /*
             Dcls -> Dcl Dcls
@@ -124,7 +122,7 @@
           declarations: function () {
             console.log('procedure: declarations');
             const tokens = [
-              [TokenType.Reserved, 'f'], 
+              [TokenType.Reserved, 'f'],
               [TokenType.Reserved, 'i']
             ];
             if(this.matchAny(tokens)) {
@@ -183,7 +181,7 @@
               this.expect(TokenType.Reserved, 'p');
               this.expect(TokenType.Identifier);
             } else this.raise('AC [error]: Expected "Identifier" or "p (Operator)"');
-            
+
           },
           /*
             Expr -> plus (operator) Val Expr
@@ -214,7 +212,7 @@
            */
           val: function  () {
             console.log('procedure: val');
-            if(this.match(TokenType.Identifier)) 
+            if(this.match(TokenType.Identifier))
               this.expect(TokenType.Identifier);
             else if(this.match(Token.typeToString(TokenType.Literal, 'Int')))
               this.expect(Token.typeToString(TokenType.Literal, 'Int'));
@@ -230,7 +228,7 @@
           console.log('procedure: program');
           /* Begin program */
           const tokens = [
-              [TokenType.Reserved, 'f'], 
+              [TokenType.Reserved, 'f'],
               [TokenType.Reserved, 'i'],
               [TokenType.Identifier],
               [TokenType.Reserved, 'p'],
@@ -327,7 +325,9 @@
     });
 
     stream.forEach(i => console.log(i.toJSON()));
-    console.log(`ACScanner [info]: time elapsed - ${scanner.info.time.elapsed} ms - with ${scanner.info.errors.length} errors.`);
+
+    console.log(`ACScanner [info]: time elapsed - ${scanner.info.time.elapsed} ms with ${scanner.info.errors.length} errors.`);
+
     const parser = new Parser(stream);
     let parse = {
       /*
@@ -337,7 +337,7 @@
       declarations: function () {
         console.log('procedure: declarations');
         const tokens = [
-          [TokenType.Reserved, 'f'], 
+          [TokenType.Reserved, 'f'],
           [TokenType.Reserved, 'i']
         ];
         if(this.matchAny(tokens)) {
@@ -396,7 +396,7 @@
           this.expect(TokenType.Reserved, 'p');
           this.expect(TokenType.Identifier);
         } else this.raise('AC [error]: Expected "Identifier" or "p (Operator)"');
-        
+
       },
       /*
         Expr -> plus (operator) Val Expr
@@ -427,7 +427,7 @@
        */
       val: function  () {
         console.log('procedure: val');
-        if(this.match(TokenType.Identifier)) 
+        if(this.match(TokenType.Identifier))
           this.expect(TokenType.Identifier);
         else if(this.match(Token.typeToString(TokenType.Literal, 'Int')))
           this.expect(Token.typeToString(TokenType.Literal, 'Int'));
@@ -443,7 +443,7 @@
       console.log('procedure: program');
       /* Begin program */
       const tokens = [
-          [TokenType.Reserved, 'f'], 
+          [TokenType.Reserved, 'f'],
           [TokenType.Reserved, 'i'],
           [TokenType.Identifier],
           [TokenType.Reserved, 'p'],
