@@ -83,7 +83,9 @@ const stream = scanner.scan(function ACScanner(ch) {
 });
 
 stream.forEach(i => console.log(i.toJSON()));
-console.log(`ACScanner [info]: time elapsed - ${scanner.info.time.elapsed} ms`);
+console.log();
+console.log(`ACScanner [info]: time elapsed - ${scanner.info.time.elapsed} ms - with ${scanner.info.errors.length} errors.`);
+console.log();
 
 const parser = new Parser(stream);
 let parse = {
@@ -196,6 +198,7 @@ let parse = {
 
 parse = _.mapValues(parse, value => value.bind(parser));
 console.log('source to parse: ', scanner.info.file.source);
+console.log();
 const tree = parser.parse(function(token){
   console.log('procedure: program');
   /* Begin program */
@@ -213,5 +216,6 @@ const tree = parser.parse(function(token){
   } else this.raise('AC [error]: Expected "f (Reserved)", "i (Reserved)", "Identifier", "p (Reserved)", or "End"');
   return;
 });
+console.log();
 console.log(`ACParser [info]: elapsed time - ${parser.info.time.elapsed} ms with ${parser.info.errors.length} errors.`);
 console.log(parser.info.errors.length > 0 ? parser.info.errors : '');
