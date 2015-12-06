@@ -13,13 +13,6 @@ class Stream {
     this.position = 0;
   }
   /*
-   @method {add} - Adds the token to the stream.
-   @param {token: class Token} - The token.
-  */
-  public add(token: Tokenize.Token) {
-    this.stream.push(token);
-  }
-  /*
     @method {previous} - Moves to the previous token.
     @return {class Token} - The previous token.
   */
@@ -33,20 +26,22 @@ class Stream {
   public next(): Tokenize.Token {
     if (this.position >= this.stream.length)
       return new Tokenize.Token(Tokenize.TokenType.End);
-    return this.stream[++this.position];
+    return this.stream[this.position++];
   }
   /*
    @method {peek} - Looks ahead by n tokens.
+   @param {n = 0} - The number of peek.
    @return {class Token} - The look-ahead token.
   */
-  public peek(n: number): Tokenize.Token {
+  public peek(n = 0): Tokenize.Token {
     return this.stream[this.position + n];
   }
   /*
     @method {peekBack} - Looks behind by n tokens.
+    @param {n = 0} - The number of peek-back.
     @return {class Token} - The look-behind token.
   */
-  public peekBack(n: number): Tokenize.Token {
+  public peekBack(n = 0): Tokenize.Token {
     return this.stream[this.position - n];
   }
   /*
@@ -60,7 +55,7 @@ class Stream {
     @method {forEach} - Loops through the tokens in the stream.
   */
   public forEach(callback, thisArg) {
-    let T, k, O = this.stream, len = O.length;
+    let T, k, O = this.stream.slice(), len = O.length;
     if (typeof callback !== 'function') {
       throw new TypeError(callback + ' is not a function');
     }

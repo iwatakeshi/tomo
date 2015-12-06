@@ -2,8 +2,6 @@
 class Source {
   /** The length of source */
   public length: number;
-  /** The position of source */
-  public position: number;
   /** The source file name */
   public name: string;
   /** The end of file character */
@@ -36,7 +34,6 @@ class Source {
       this.source = src;
     }
     this.options = options;
-    this.position = 0;
     this.length = this.source.length;
   }
   /*
@@ -49,13 +46,11 @@ class Source {
     return this.options.isCharCode ? ch.charCodeAt(0) : ch;
   }
   public toString() {
-    return `position: ${ this.position }`;
+    return `position: ${ this.source }`;
   }
   public toJSON() {
     return {
-      source: {
-        position: this.position
-      }
+      source: this.source
     };
   }
 }

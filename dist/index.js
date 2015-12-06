@@ -484,6 +484,7 @@ var Scanner = (function () {
         this.options = options;
         this.tokens = [];
         this.stack = [];
+        this.position = 0;
         this.line = 1;
         this.column = 0;
         this.range = new Location_1.Range();
@@ -493,7 +494,7 @@ var Scanner = (function () {
                 name: source.name,
                 length: source.length,
                 source: source.source,
-                position: source.position
+                position: this.position
             }
         };
     }
@@ -571,7 +572,7 @@ var Scanner = (function () {
         var _a = this.stack[this.stack.length - 1], line = _a.line, column = _a.column;
         this.line = line;
         this.column = column;
-        return this.source.charAt(--this.source.position);
+        return this.source.charAt(this.position--);
     };
     /*
       @return {string | number} - The next character.
@@ -579,13 +580,13 @@ var Scanner = (function () {
     Scanner.prototype.next = function () {
         // If we are at the end or over the length
         // of the source then return EOF
-        if (this.source.position >= this.source.length) {
+        if (this.position >= this.source.length) {
             return this.source.EOF;
         }
         // If we reach a new line then
         // increment the line and reset the column
         // else increment the column
-        if (Utils_1["default"].Code.isLineTermintor(this.source.charAt(this.source.position))) {
+        if (Utils_1["default"].Code.isLineTermintor(this.source.charAt(this.position))) {
             this.line++;
             this.column = 0;
             this.push();
@@ -594,7 +595,7 @@ var Scanner = (function () {
             this.column++;
             this.push();
         }
-        return this.source.charAt(this.source.position++);
+        return this.source.charAt(this.position++);
     };
     /*
       @param {peek = 0} - The number of steps to peek backward.
@@ -602,7 +603,7 @@ var Scanner = (function () {
      */
     Scanner.prototype.peekBack = function (peek) {
         if (peek === void 0) { peek = 0; }
-        return this.source.charAt(this.source.position - peek);
+        return this.source.charAt(this.position - peek);
     };
     /*
       @param {peek = 0} - The number of steps to peek forward.
@@ -612,10 +613,10 @@ var Scanner = (function () {
         if (peek === void 0) { peek = 0; }
         // If we peek and the we reach the end or over
         // the length then return EOF
-        if (this.source.position + peek >= this.source.length) {
+        if (this.position + peek >= this.source.length) {
             return this.source.EOF;
         }
-        return this.source.charAt(this.source.position + peek);
+        return this.source.charAt(this.position + peek);
     };
     /*
       @method {ignoreWhiteSpace} - Ignores the whitespaces in the source.
@@ -641,7 +642,7 @@ var Scanner = (function () {
      */
     Scanner.prototype.push = function () {
         this.stack.push({
-            char: this.source.charAt(this.source.position),
+            char: this.source.charAt(this.position),
             location: {
                 range: this.range
             }
@@ -685,7 +686,6 @@ var Source = (function () {
             this.source = src;
         }
         this.options = options;
-        this.position = 0;
         this.length = this.source.length;
     }
     /*
@@ -698,13 +698,11 @@ var Source = (function () {
         return this.options.isCharCode ? ch.charCodeAt(0) : ch;
     };
     Source.prototype.toString = function () {
-        return "position: " + this.position;
+        return "position: " + this.source;
     };
     Source.prototype.toJSON = function () {
         return {
-            source: {
-                position: this.position
-            }
+            source: this.source
         };
     };
     return Source;
@@ -725,13 +723,6 @@ var Stream = (function () {
         this.position = 0;
     }
     /*
-     @method {add} - Adds the token to the stream.
-     @param {token: class Token} - The token.
-    */
-    Stream.prototype.add = function (token) {
-        this.stream.push(token);
-    };
-    /*
       @method {previous} - Moves to the previous token.
       @return {class Token} - The previous token.
     */
@@ -745,20 +736,24 @@ var Stream = (function () {
     Stream.prototype.next = function () {
         if (this.position >= this.stream.length)
             return new Token_1["default"].Token(Token_1["default"].TokenType.End);
-        return this.stream[++this.position];
+        return this.stream[this.position++];
     };
     /*
      @method {peek} - Looks ahead by n tokens.
+     @param {n = 0} - The number of peek.
      @return {class Token} - The look-ahead token.
     */
     Stream.prototype.peek = function (n) {
+        if (n === void 0) { n = 0; }
         return this.stream[this.position + n];
     };
     /*
       @method {peekBack} - Looks behind by n tokens.
+      @param {n = 0} - The number of peek-back.
       @return {class Token} - The look-behind token.
     */
     Stream.prototype.peekBack = function (n) {
+        if (n === void 0) { n = 0; }
         return this.stream[this.position - n];
     };
     /*
@@ -772,7 +767,7 @@ var Stream = (function () {
       @method {forEach} - Loops through the tokens in the stream.
     */
     Stream.prototype.forEach = function (callback, thisArg) {
-        var T, k, O = this.stream, len = O.length;
+        var T, k, O = this.stream.slice(), len = O.length;
         if (typeof callback !== 'function') {
             throw new TypeError(callback + ' is not a function');
         }

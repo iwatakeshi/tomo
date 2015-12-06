@@ -19,6 +19,8 @@ class Scanner {
   private tokens: Array<any>;
   /** The history stack */
   private stack: Array<any>;
+  /** The source position number */
+  private position: number;
   /** The source line number */
   private line: number;
   /** The source column number */
@@ -37,6 +39,7 @@ class Scanner {
     this.options = options;
     this.tokens = [];
     this.stack = [];
+    this.position = 0;
     this.line = 1;
     this.column = 0;
     this.range = new Range();
@@ -46,7 +49,7 @@ class Scanner {
         name: source.name, 
         length: source.length, 
         source: source.source,
-        position: source.position 
+        position: this.position 
       }
     };
   }
@@ -117,10 +120,10 @@ class Scanner {
   public previous(): string | number {
     if (this.stack.length === 0) return;
     this.pop();
-    let { line, column } = this.stack[this.stack.length - 1];
+    const { line, column } = this.stack[this.stack.length - 1];
     this.line = line;
     this.column = column;
-    return this.source.charAt(--this.source.position);
+    return this.source.charAt(this.position--);
   }
   /*
     @return {string | number} - The next character.
@@ -128,13 +131,13 @@ class Scanner {
   public next(): string | number {
     // If we are at the end or over the length
     // of the source then return EOF
-    if (this.source.position >= this.source.length) {
+    if (this.position >= this.source.length) {
       return this.source.EOF;
     }
     // If we reach a new line then
     // increment the line and reset the column
     // else increment the column
-    if (Utils.Code.isLineTermintor(this.source.charAt(this.source.position))) {
+    if (Utils.Code.isLineTermintor(this.source.charAt(this.position))) {
       this.line++;
       this.column = 0;
       this.push();
@@ -142,14 +145,14 @@ class Scanner {
       this.column++;
       this.push();
     }
-    return this.source.charAt(this.source.position++);
+    return this.source.charAt(this.position++);
   }
   /*
     @param {peek = 0} - The number of steps to peek backward.
     @return {string | number} - The previous character(s) to peek.
    */
   public peekBack(peek = 0): string | number {
-    return this.source.charAt(this.source.position - peek);
+    return this.source.charAt(this.position - peek);
   }
   /*
     @param {peek = 0} - The number of steps to peek forward.
@@ -158,10 +161,10 @@ class Scanner {
   public peek(peek = 0): string | number {
     // If we peek and the we reach the end or over
     // the length then return EOF
-    if (this.source.position + peek >= this.source.length) {
+    if (this.position + peek >= this.source.length) {
       return this.source.EOF;
     }
-    return this.source.charAt(this.source.position + peek);
+    return this.source.charAt(this.position + peek);
   }
   /*
     @method {ignoreWhiteSpace} - Ignores the whitespaces in the source.
@@ -185,7 +188,7 @@ class Scanner {
    */
   private push() {
     this.stack.push({
-      char: this.source.charAt(this.source.position),
+      char: this.source.charAt(this.position),
       location: {
         range: this.range
       }
