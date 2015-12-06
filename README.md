@@ -42,7 +42,7 @@ The Parser class ( __Help Needed__ ) _should parse the tokens and return an AST_
 
 ### Example
 
-See example on [rawgit](https://cdn.rawgit.com/iwatakeshi/cherry/master/test/index.html).
+See example on [rawgit](https://cdn.rawgit.com/iwatakeshi/cherry/master/html/index.html).
 
 
 ```bash
