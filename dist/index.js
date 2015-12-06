@@ -408,7 +408,7 @@ var Parser = (function () {
         if (peek === void 0) { peek = 0; }
         return this.stream.peek(peek);
     };
-    Parser.prototype.prev = function () {
+    Parser.prototype.previous = function () {
         return this.stream.previous();
     };
     Parser.prototype.next = function () {
@@ -450,13 +450,18 @@ var Parser = (function () {
         if (this.match(type, value))
             this.next();
         else
-            throw new Error("ACParser [error]: Expected type \"" + Token.typeToString(type) + "\"\" but received \"" + token.stype + "\"");
+            throw new Error("Expected type \"" + Token.typeToString(type) + "\"\" but received \"" + token.stype + "\"");
     };
-    Parser.prototype.raise = function (message) {
+    /*
+      @method {raise} - Adds an error message into the errors stack.
+      @param {message?: string} - The message to add to the error.
+      @param {type?: string} - The type of error.
+     */
+    Parser.prototype.raise = function (message, type) {
         this.info.errors.push({
-            error: "ACParser [error]: Unexpected token: " + this.peek().typeToString(),
-            type: 'ParseError',
-            message: message ? message : '',
+            error: "Unexpected token: " + this.peek().typeToString(),
+            type: type || 'ParseError',
+            message: message || '',
             location: this.location()
         });
     };
@@ -495,7 +500,8 @@ var Scanner = (function () {
                 length: source.length,
                 source: source.source,
                 position: this.position
-            }
+            },
+            errors: []
         };
     }
     /*
@@ -617,6 +623,19 @@ var Scanner = (function () {
             return this.source.EOF;
         }
         return this.source.charAt(this.position + peek);
+    };
+    /*
+      @method {raise} - Adds an error message into the errors stack.
+      @param {message?: string} - The message to add to the error.
+      @param {type?: string} - The type of error.
+     */
+    Scanner.prototype.raise = function (message, type) {
+        this.info.errors.push({
+            error: "Unexpected character: " + this.peek(),
+            type: type || 'ScanError',
+            message: message || '',
+            location: { line: this.location().line, column: this.location().column }
+        });
     };
     /*
       @method {ignoreWhiteSpace} - Ignores the whitespaces in the source.

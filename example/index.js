@@ -76,9 +76,7 @@ const stream = scanner.scan(function ACScanner(ch) {
       case '5': case '6': case '7': case '8': case '9':
         return scan.number.call(this, ch);
       default:
-        const { line, column} = this.location();
-        const message = `AC [error]: Encountered an invalid character "${ this.peek() }" on line ${line}, column ${column}`;
-        throw (new Error(message)).stack;
+        this.raise(`ACScanner [error]: Unexpected character "${this.peek()}"`);
         break;
     }
   }

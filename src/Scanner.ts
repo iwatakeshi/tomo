@@ -9,7 +9,8 @@ class Scanner {
   /** The information about the Scanner */
   public info: { 
     time: { elapsed: Date | number }, 
-    file: { name: string, length: number, source: string, position: number } 
+    file: { name: string, length: number, source: string, position: number },
+    errors: Array<any> 
   };
   /** The source object */
   private source: Source;
@@ -50,7 +51,8 @@ class Scanner {
         length: source.length, 
         source: source.source,
         position: this.position 
-      }
+      },
+      errors: []
     };
   }
   /*
@@ -165,6 +167,19 @@ class Scanner {
       return this.source.EOF;
     }
     return this.source.charAt(this.position + peek);
+  }
+  /*
+    @method {raise} - Adds an error message into the errors stack.
+    @param {message?: string} - The message to add to the error.
+    @param {type?: string} - The type of error.
+   */
+  public raise (message?: string, type?: string) {
+    this.info.errors.push({
+      error: `Unexpected character: ${this.peek()}`,
+      type: type || 'ScanError',
+      message: message || '',
+      location: { line: this.location().line, column: this.location().column }
+    });
   }
   /*
     @method {ignoreWhiteSpace} - Ignores the whitespaces in the source.

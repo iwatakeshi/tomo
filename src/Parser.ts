@@ -25,7 +25,7 @@ class Parser {
   public peek(peek = 0) {
     return this.stream.peek(peek);
   }
-  public prev() {
+  public previous() {
     return this.stream.previous();
   }
   public next() {
@@ -62,14 +62,18 @@ class Parser {
   public expect(type: Tokenize.TokenType | string, value?: string) {
     const token = this.peek();
     if (this.match(type, value)) this.next();
-    else throw new Error(`ACParser [error]: Expected type "${Token.typeToString(<Tokenize.TokenType>type)}"" but received "${token.stype}"`);
+    else throw new Error(`Expected type "${Token.typeToString(<Tokenize.TokenType>type)}"" but received "${token.stype}"`);
   }
-
-  public raise(message?:string) {
+  /*
+    @method {raise} - Adds an error message into the errors stack.
+    @param {message?: string} - The message to add to the error.
+    @param {type?: string} - The type of error.
+   */
+  public raise(message?:string, type?: string) {
     this.info.errors.push({
-      error: `ACParser [error]: Unexpected token: ${this.peek().typeToString()}`,
-      type: 'ParseError',
-      message: message ? message : '',
+      error: `Unexpected token: ${this.peek().typeToString()}`,
+      type: type || 'ParseError',
+      message: message || '',
       location: this.location()
     });
   }
