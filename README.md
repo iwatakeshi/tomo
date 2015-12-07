@@ -26,8 +26,7 @@ npm i --save https://github.com/iwatakeshi/cherry.git
 
 Cherry contains 4 main classes that makes up the lexer and parser combo: Source, Scanner, Parser, and Token.
 
-The Source class provides the Scanner the `source: string`, `line: number`, `column: number`, and the `position: number`. 
-The Source class also provides the source a EOF (`'\0'`) character if it doens't end with one.
+The Source class provides the Scanner the `source: string`, `line: number`, `column: number`, and the `position: number`.
 
 The Scanner class initializes a new source in the constructor and provides the essential methods 
 to begin the tokenization process. To tokenize, one must pass a callback function to `scan` 
