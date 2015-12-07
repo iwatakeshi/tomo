@@ -69,12 +69,12 @@ class Scanner {
   public scan(tokenizer: (char: string | number) => Tokenize.Token): Stream {
     let start = Date.now();
     this.ignoreWhiteSpace();
-    while (this.peek() !== this.source.EOF) {
+    while (this.peek()) {
       const token: Tokenize.Token = tokenizer.call(this, this.peek());
       if (token) this.tokens.push(token);
       this.ignoreWhiteSpace();
     }
-    if (this.peek() === this.source.EOF) {
+    if (!this.peek()) {
       const token = tokenizer.call(this, this.peek());
       if (token) this.tokens.push(token);
     }
@@ -134,7 +134,7 @@ class Scanner {
     // If we are at the end or over the length
     // of the source then return EOF
     if (this.position >= this.source.length) {
-      return this.source.EOF;
+      return undefined;
     }
     // If we reach a new line then
     // increment the line and reset the column
@@ -164,9 +164,16 @@ class Scanner {
     // If we peek and the we reach the end or over
     // the length then return EOF
     if (this.position + peek >= this.source.length) {
-      return this.source.EOF;
+      return undefined;
     }
     return this.source.charAt(this.position + peek);
+  }
+  /*
+    @method {isEOF} - Determines whether the current character is the end of file.
+    @return {boolean} - The truth value.
+   */
+  public isEOF() : boolean {
+    return !this.source.charAt(this.position) && this.position === this.source.length;
   }
   /*
     @method {raise} - Adds an error message into the errors stack.
@@ -186,7 +193,7 @@ class Scanner {
       error: `Unexpected character: ${this.peek()}`,
       type: type || 'ScanError',
       message: message || '',
-      source: source
+      source: source,
       location: { line: this.location().line, column: this.location().column }
     });
   }
@@ -198,12 +205,16 @@ class Scanner {
       if (this.options.override.whitespace &&
         typeof this.options.override.whitespace === 'function') {
         const isWhiteSpace = this.options.override.whitespace;
-        while (isWhiteSpace(this.peek())) {
+        if (!this.peek()) this.next();
+        else while (isWhiteSpace(this.peek())) {
           this.next();
         }
       }
-    } else while (Utils.Code.isWhiteSpace(this.peek())) {
-      this.next();
+    } else {
+      if (!this.peek()) this.next();
+      else while (Utils.Code.isWhiteSpace(this.peek())) {
+            this.next();
+      }
     }
     return;
   }

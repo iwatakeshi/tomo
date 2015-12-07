@@ -4,8 +4,6 @@ class Source {
   public length: number;
   /** The source file name */
   public name: string;
-  /** The end of file character */
-  public EOF: string | number;
   /** The source file */
   public source: string;
   /** The options */
@@ -20,18 +18,13 @@ class Source {
     }
    */
   constructor(source?: string | any, options: any = { isCharCode: true }) {
-    this.EOF = options.isCharCode ? '\0'.charCodeAt(0) : '\0';
     if (typeof source === 'string') {
-      source = source[source.length - 1] === this.EOF ?
-        source : source += this.EOF;
-      this.source = source;
+      this.source = source || '';
       this.name = '';
     }
     if (typeof source === 'object') {
-      let src: string = (source.source ? source.source : '');
-      src = src[src.length - 1] === this.EOF ? src : src += this.EOF;
-      this.name = source.source ? source.name : '';
-      this.source = src;
+      this.source = source.source;
+      this.name = source.name || '';
     }
     this.options = options;
     this.length = this.source.length;
@@ -41,9 +34,9 @@ class Source {
     @param {position:number} - The position in the source.
     @return {string | number} - The character in the source.
    */
-  public charAt(position:number): string | number {
+  public charAt(position: number): string | number {
     const ch = this.source[position];
-    return this.options.isCharCode ? ch.charCodeAt(0) : ch;
+    return ch ? (this.options.isCharCode ? ch.charCodeAt(0) : ch) : undefined;
   }
   public toString() {
     return `position: ${ this.source }`;

@@ -518,13 +518,13 @@ var Scanner = (function () {
     Scanner.prototype.scan = function (tokenizer) {
         var start = Date.now();
         this.ignoreWhiteSpace();
-        while (this.peek() !== this.source.EOF) {
+        while (this.peek()) {
             var token = tokenizer.call(this, this.peek());
             if (token)
                 this.tokens.push(token);
             this.ignoreWhiteSpace();
         }
-        if (this.peek() === this.source.EOF) {
+        if (!this.peek()) {
             var token = tokenizer.call(this, this.peek());
             if (token)
                 this.tokens.push(token);
@@ -587,7 +587,7 @@ var Scanner = (function () {
         // If we are at the end or over the length
         // of the source then return EOF
         if (this.position >= this.source.length) {
-            return this.source.EOF;
+            return undefined;
         }
         // If we reach a new line then
         // increment the line and reset the column
@@ -620,9 +620,16 @@ var Scanner = (function () {
         // If we peek and the we reach the end or over
         // the length then return EOF
         if (this.position + peek >= this.source.length) {
-            return this.source.EOF;
+            return undefined;
         }
         return this.source.charAt(this.position + peek);
+    };
+    /*
+      @method {isEOF} - Determines whether the current character is the end of file.
+      @return {boolean} - The truth value.
+     */
+    Scanner.prototype.isEOF = function () {
+        return !this.source.charAt(this.position) && this.position === this.source.length;
     };
     /*
       @method {raise} - Adds an error message into the errors stack.
@@ -656,15 +663,22 @@ var Scanner = (function () {
             if (this.options.override.whitespace &&
                 typeof this.options.override.whitespace === 'function') {
                 var isWhiteSpace = this.options.override.whitespace;
-                while (isWhiteSpace(this.peek())) {
+                if (!this.peek())
                     this.next();
-                }
+                else
+                    while (isWhiteSpace(this.peek())) {
+                        this.next();
+                    }
             }
         }
-        else
-            while (Utils_1["default"].Code.isWhiteSpace(this.peek())) {
+        else {
+            if (!this.peek())
                 this.next();
-            }
+            else
+                while (Utils_1["default"].Code.isWhiteSpace(this.peek())) {
+                    this.next();
+                }
+        }
         return;
     };
     /*
@@ -702,18 +716,13 @@ var Source = (function () {
      */
     function Source(source, options) {
         if (options === void 0) { options = { isCharCode: true }; }
-        this.EOF = options.isCharCode ? '\0'.charCodeAt(0) : '\0';
         if (typeof source === 'string') {
-            source = source[source.length - 1] === this.EOF ?
-                source : source += this.EOF;
-            this.source = source;
+            this.source = source || '';
             this.name = '';
         }
         if (typeof source === 'object') {
-            var src = (source.source ? source.source : '');
-            src = src[src.length - 1] === this.EOF ? src : src += this.EOF;
-            this.name = source.source ? source.name : '';
-            this.source = src;
+            this.source = source.source;
+            this.name = source.name || '';
         }
         this.options = options;
         this.length = this.source.length;
@@ -725,7 +734,7 @@ var Source = (function () {
      */
     Source.prototype.charAt = function (position) {
         var ch = this.source[position];
-        return this.options.isCharCode ? ch.charCodeAt(0) : ch;
+        return ch ? (this.options.isCharCode ? ch.charCodeAt(0) : ch) : undefined;
     };
     Source.prototype.toString = function () {
         return "position: " + this.source;
