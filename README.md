@@ -49,7 +49,7 @@ See example on [rawgit](https://rawgit.com/iwatakeshi/cherry/master/html/index.h
 # Install modules
 npm i
 
-# Run the test/example file
+# Run the example file
 npm start
 ```
 
