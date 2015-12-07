@@ -11,6 +11,10 @@ describe('Scanner', function () {
 
   function tokenizer(ch) {
     this.location().start();
+    if(this.isEOF()) {
+      this.next();
+      return new Token(TokenType.End, ch, this.location().end());
+    }
     switch (ch) {
       case '0':
         this.next();
@@ -21,9 +25,6 @@ describe('Scanner', function () {
       case ';':
         this.next();
         return new Token(TokenType.Punctuation, ch, this.location().end()).prepend('semi colon');
-      case '\0':
-        this.next();
-        return new Token(TokenType.End, ch, this.location().end())
       default:
         let buffer = [];
         let reserved = { 'var': true };

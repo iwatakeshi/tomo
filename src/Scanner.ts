@@ -69,12 +69,12 @@ class Scanner {
   public scan(tokenizer: (char: string | number) => Tokenize.Token): Stream {
     let start = Date.now();
     this.ignoreWhiteSpace();
-    while (this.peek()) {
+    while (this.peek() !== undefined) {
       const token: Tokenize.Token = tokenizer.call(this, this.peek());
       if (token) this.tokens.push(token);
       this.ignoreWhiteSpace();
     }
-    if (!this.peek()) {
+    if (this.peek() === undefined) {
       const token = tokenizer.call(this, this.peek());
       if (token) this.tokens.push(token);
     }
