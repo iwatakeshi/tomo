@@ -6,13 +6,16 @@ module Token {
   export enum TokenType {
     /** Identifiers */
     Identifier = 1,
-    Reserved = 2,
+    /** Keywords */,
+    Keyword = 2,
+    /** Reserved */
+    Reserved = 3,
     /** Literals */
-    Literal = 3,
+    Literal = 4,
     /** Operator */
-    Operator = 4,
+    Operator = 5,
     /** Punctuation */
-    Punctuation = 5,
+    Punctuation = 6,
     /** Other types */
     Comment = 100,
     Whitespace = 50,
@@ -62,6 +65,7 @@ module Token {
       let type: TokenType;
       [
         'Identifier',
+        'Keyword',
         'Reserved',
         'Literal',
         'Operator',
@@ -102,6 +106,8 @@ module Token {
       switch (type) {
         case TokenType.Identifier:
           return 'Identifier';
+        case TokenType.Keyword:
+          return 'Keyword';
         case TokenType.Reserved:
           return 'Reserved';
         case TokenType.Literal:

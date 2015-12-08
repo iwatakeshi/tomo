@@ -8,10 +8,11 @@ const assert    = chai.assert;
 describe('TokenType', () => {
   const types = [
     ['Identifier', 1],
-    ['Reserved', 2],
-    ['Literal', 3],
-    ['Operator', 4],
-    ['Punctuation', 5],
+    ['Keyword', 2],
+    ['Reserved', 3],
+    ['Literal', 4],
+    ['Operator', 5],
+    ['Punctuation', 6],
     ['Comment', 100],
     ['Whitespace', 50],
     ['End', 0],
@@ -50,6 +51,7 @@ describe('Token', () => {
   describe('static typeToString()', () => {
     const types = [
       'Identifier',
+      'Keyword',
       'Reserved',
       'Literal',
       'Operator',
@@ -67,10 +69,11 @@ describe('Token', () => {
   describe('static stringToType()', () => {
     let types = [
       ['Identifier', 1],
-      ['Reserved', 2],
-      ['Literal', 3],
-      ['Operator', 4],
-      ['Punctuation', 5],
+      ['Keyword', 2],
+      ['Reserved', 3],
+      ['Literal', 4],
+      ['Operator', 5],
+      ['Punctuation', 6],
       ['Comment', 100],
       ['Whitespace', 50],
       ['End', 0],
