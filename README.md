@@ -36,6 +36,8 @@ modules which is the `TokenType: enum`, and the Token class. See `Token.ts`
 
 The Parser class ( __Help Needed__ ) _should parse the tokens and return an AST_.
 
+As the descriptions says, cherry can be used in the web browser. The library is bundled using browserify and all classes have no external dependency (npm modules) other than the cherry classes. You may simply add the source from `dist/` into your html file and use it as you normally would.
+
 
 ### Example
 
