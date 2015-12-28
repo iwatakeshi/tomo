@@ -1,4 +1,6 @@
 # tomo
+
+[![Join the chat at https://gitter.im/iwatakeshi/tomo](https://badges.gitter.im/iwatakeshi/tomo.svg)](https://gitter.im/iwatakeshi/tomo?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 A small generic scanner and parser written in TypeScript for Node and the web.
 
 Note: Not production ready and it's more like a toy for the moment.
