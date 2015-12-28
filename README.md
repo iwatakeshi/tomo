@@ -5,6 +5,9 @@ A small generic scanner and parser written in TypeScript for Node and the web.
 Note: Not production ready and it's more like a toy for the moment.
 
 [![Build Status](https://travis-ci.org/iwatakeshi/tomo.svg?branch=master)](https://travis-ci.org/iwatakeshi/tomo)
+[![npm](https://img.shields.io/npm/v/tomo.svg)](https://www.npmjs.com/package/tomo)
+[![npm](https://img.shields.io/npm/dt/tomo.svg)](https://www.npmjs.com/package/tomo)
+[![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://raw.githubusercontent.com/iwatakeshi/tomo/master/LICENSE.md)
 [![Join the chat at https://gitter.im/iwatakeshi/tomo](https://badges.gitter.im/iwatakeshi/tomo.svg)](https://gitter.im/iwatakeshi/tomo?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 ## Background
