@@ -9,19 +9,15 @@ Note: Not production ready and it's more like a toy for the moment.
 
 tomo is a small generic lexer and parser that started out of curiousity on how lexers and parsers work. In addition to my curiosity,
 a [discussion](https://github.com/mr-doc/mr-doc/issues/94) appeared on [Mr. Doc's](https://github.com/mr-doc/) issue about creating a parser that
-replaces Mr. Doc's current core ([Dox](https://github.com/tj/dox) and tomo is the result of that discussion. If this succeeds, it will mean that Mr. Doc can generate documentation for any language*.
+replaces Mr. Doc's current core ([Dox](https://github.com/tj/dox) and tomo is the result of that discussion. If this succeeds, it will mean that Mr. Doc can generate documentation for any language*. Of course, tomo can be used for other things such as a text editor, etc.
 
 \* It will depend on the parser.
 
 
 ## Usage
 
-tomo is currently being incubated under this repo so it is not published on npm or bower. The plan is to stabilize this project
-and move the repo over to [Mr. Doc core](https://www.github.com/mr-doc/core) once it is accepted by the community.
-While tomo may not be on npm, it is still possible to install directly from the GitHub repo:
-
 ```bash
-npm i --save https://github.com/iwatakeshi/tomo.git
+npm i --save tomo
 ```
 
 tomo contains 3 main classes and 1 module that makes up the lexer and parser combo: Source, Scanner, Parser, and Token respectively.
@@ -36,7 +32,7 @@ modules which is the `TokenType: enum`, and the Token class. See `Token.ts`
 
 The Parser class ( __Help Needed__ ) _should parse the tokens and return an AST_.
 
-As the descriptions says, tomo can be used in the web browser. The library is bundled using browserify and all classes have no external dependency (npm modules) other than the tomo classes. You may simply add the source from `dist/` into your html file and use it as you normally would.
+As the descriptions says, tomo can be used in the web browser. The library is bundled using browserify and all classes have no external dependency (npm modules) other than the tomo classes. You may simply add the source from `dist/` into your html file and use it as you normally would. Note that the source is not minified at the moment.
 
 
 ### Example
