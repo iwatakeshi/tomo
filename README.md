@@ -1,4 +1,4 @@
-# cherry
+# tomo
 A small generic scanner and parser written in TypeScript for Node and the web.
 
 Note: Not production ready and it's more like a toy for the moment.
