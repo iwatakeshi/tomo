@@ -2,7 +2,7 @@
 
 A small generic scanner and parser written in TypeScript for Node and the web.
 
-Note: Not production ready and it's more like a toy for the moment.
+Note: Not production ready!
 
 [![Build Status](https://travis-ci.org/iwatakeshi/tomo.svg?branch=master)](https://travis-ci.org/iwatakeshi/tomo)
 [![npm](https://img.shields.io/npm/v/tomo.svg)](https://www.npmjs.com/package/tomo)
