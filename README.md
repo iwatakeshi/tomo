@@ -14,7 +14,7 @@ Note: Not production ready!
 
 tomo is a small generic lexer and parser that started out of curiousity on how lexers and parsers work. In addition to my curiosity,
 a [discussion](https://github.com/mr-doc/mr-doc/issues/94) appeared on [Mr. Doc's](https://github.com/mr-doc/) issue about creating a parser that
-replaces Mr. Doc's current core ([Dox](https://github.com/tj/dox) and tomo is the result of that discussion. If this succeeds, it will mean that Mr. Doc can generate documentation for any language*. Of course, tomo can be used for other things such as a text editor, etc.
+replaces Mr. Doc's current core ([Dox](https://github.com/tj/dox)) and tomo is the result of that discussion. If this succeeds, it will mean that Mr. Doc can generate documentation for any language*. Of course, tomo can be used for other things such as a text editor, etc.
 
 \* It will depend on the parser.
 
