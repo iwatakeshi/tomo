@@ -10,11 +10,19 @@ class Parser {
     this.stream = stream;
     this.info = { time: { elapsed: 0 }, errors: [] };
   }
-  public parse(parser) {
-    if (typeof parser === 'function') {
+  public parse(driver, parser: Object) {
+    // Bind the context if the scanner object is provided
+    if(parser) {
+      for (let fn in parser) {
+        if (parser.hasOwnProperty(fn) && typeof parser[fn] === 'function') {
+          parser[fn] = parser[fn].bind(this);
+        }
+      }
+    }
+    if (typeof driver === 'function') {
       let start = Date.now();
       let ast = {};
-        ast = parser.call(this);
+        ast = driver.call(this);
       this.info.time.elapsed = (Date.now() - start);
       return ast;
     }

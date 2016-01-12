@@ -6,7 +6,7 @@ module Token {
   export enum TokenType {
     /** Identifiers */
     Identifier = 1,
-    /** Keywords */,
+    /** Keywords */
     Keyword = 2,
     /** Reserved */
     Reserved = 3,

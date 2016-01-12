@@ -57,7 +57,8 @@ class Scanner {
   }
   /*
     @method {scan} - Calls the tokenizer as it scans through the source.
-    @param {tokenizer: (char: string | number) => Token} - The tokenizer function which returns a token.
+    @param {driver: (char: string | number) => Token} - The driver function which returns a token.
+    @param {scanner?: object} - The scanner object to bind the context.
     @return {class Stream} - The token stream.
     @example: javascript {
       let scanner = new Scanner(new Source('...'));
@@ -66,16 +67,25 @@ class Scanner {
       });
     }
   */
-  public scan(tokenizer: (char: string | number) => Tokenize.Token): Stream {
+  public scan(driver: (char: string | number) => Tokenize.Token, scanner?: Object): Stream {
+    // Bind the context if the scanner object is provided
+    if(scanner) {
+      for (let fn in scanner) {
+        if (scanner.hasOwnProperty(fn) && typeof scanner[fn] === 'function') {
+          scanner[fn] = scanner[fn].bind(this);
+        }
+      }
+    }
+    
     let start = Date.now();
     this.ignoreWhiteSpace();
     while (this.peek() !== undefined) {
-      const token: Tokenize.Token = tokenizer.call(this, this.peek());
+      const token: Tokenize.Token = driver.call(this, this.peek());
       if (token) this.tokens.push(token);
       this.ignoreWhiteSpace();
     }
     if (this.peek() === undefined) {
-      const token = tokenizer.call(this, this.peek());
+      const token = driver.call(this, this.peek());
       if (token) this.tokens.push(token);
     }
     this.info.time.elapsed = (Date.now() - start);

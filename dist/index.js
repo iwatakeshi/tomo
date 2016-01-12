@@ -392,11 +392,19 @@ var Parser = (function () {
         this.stream = stream;
         this.info = { time: { elapsed: 0 }, errors: [] };
     }
-    Parser.prototype.parse = function (parser) {
-        if (typeof parser === 'function') {
+    Parser.prototype.parse = function (driver, parser) {
+        // Bind the context if the scanner object is provided
+        if (parser) {
+            for (var fn in parser) {
+                if (parser.hasOwnProperty(fn) && typeof parser[fn] === 'function') {
+                    parser[fn] = parser[fn].bind(this);
+                }
+            }
+        }
+        if (typeof driver === 'function') {
             var start = Date.now();
             var ast = {};
-            ast = parser.call(this);
+            ast = driver.call(this);
             this.info.time.elapsed = (Date.now() - start);
             return ast;
         }
@@ -506,7 +514,8 @@ var Scanner = (function () {
     }
     /*
       @method {scan} - Calls the tokenizer as it scans through the source.
-      @param {tokenizer: (char: string | number) => Token} - The tokenizer function which returns a token.
+      @param {driver: (char: string | number) => Token} - The driver function which returns a token.
+      @param {scanner?: object} - The scanner object to bind the context.
       @return {class Stream} - The token stream.
       @example: javascript {
         let scanner = new Scanner(new Source('...'));
@@ -515,17 +524,25 @@ var Scanner = (function () {
         });
       }
     */
-    Scanner.prototype.scan = function (tokenizer) {
+    Scanner.prototype.scan = function (driver, scanner) {
+        // Bind the context if the scanner object is provided
+        if (scanner) {
+            for (var fn in scanner) {
+                if (scanner.hasOwnProperty(fn) && typeof scanner[fn] === 'function') {
+                    scanner[fn] = scanner[fn].bind(this);
+                }
+            }
+        }
         var start = Date.now();
         this.ignoreWhiteSpace();
         while (this.peek() !== undefined) {
-            var token = tokenizer.call(this, this.peek());
+            var token = driver.call(this, this.peek());
             if (token)
                 this.tokens.push(token);
             this.ignoreWhiteSpace();
         }
         if (this.peek() === undefined) {
-            var token = tokenizer.call(this, this.peek());
+            var token = driver.call(this, this.peek());
             if (token)
                 this.tokens.push(token);
         }
@@ -834,6 +851,7 @@ var Token;
     (function (TokenType) {
         /** Identifiers */
         TokenType[TokenType["Identifier"] = 1] = "Identifier";
+        /** Keywords */
         TokenType[TokenType["Keyword"] = 2] = "Keyword";
         /** Reserved */
         TokenType[TokenType["Reserved"] = 3] = "Reserved";

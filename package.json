@@ -1,6 +1,6 @@
 {
   "name": "tomo",
-  "version": "1.0.0-alpha.1",
+  "version": "1.0.0-alpha.2",
   "description": "A small generic scanner and parser written in TypeScript for Node and the web",
   "main": "index.js",
   "scripts": {

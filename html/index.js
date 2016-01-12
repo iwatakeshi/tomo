@@ -4,9 +4,10 @@ const Tokenize = Cherry.Tokenize;
 const Token = Tokenize.Token, TokenType = Tokenize.TokenType;
 const Source = Cherry.Source;
 const Scanner = Cherry.Scanner;
+
 const isOperator = function (c) { return /[+\-*\/\^%=(),]/.test(c); },
-isDigit = function (c) { return /[0-9]/.test(c); },
-isIdentifier = function (c) { return typeof c === 'string' && !isOperator(c) && !isDigit(c) };
+  isDigit = function (c) { return /[0-9]/.test(c); },
+  isIdentifier = function (c) { return typeof c === 'string' && !isOperator(c) && !isDigit(c) };
 
 const scan = {
   identifier: function (ch, type) {
@@ -41,13 +42,13 @@ const scan = {
   }
 };
 
-const source = new Source('f b   i a   a = 5   b = a + 3.2   p b', { isCharCode: false });
+const source = new Source('f b   i a   a = 5   b = a + 3.2  p b', { isCharCode: false });
 // Quick and dirty scanner
 const scanner = new Scanner(source);
 
 const stream = scanner.scan(function ACScanner(ch) {
   this.location().start();
-  if (this.isEOF()) return scan.eof.call(this, ch);
+  if (this.isEOF()) return scan.eof(ch);
   else {
     switch (ch.toLowerCase()) {
       /* Identifiers */
@@ -56,28 +57,35 @@ const stream = scanner.scan(function ACScanner(ch) {
       case 'l': case 'm': case 'n': case 'o': case 'r':
       case 's': case 't': case 'u': case 'v': case 'w':
       case 'x': case 'y': case 'z':
-        return scan.identifier.call(this, ch);
+        return scan.identifier(ch);
       /* Reserved */
-      case 'i': return scan.reserved.call(this, ch, 'Int');
-      case 'f': return scan.reserved.call(this, ch, 'Float');
-      case 'p': return scan.reserved.call(this, ch, 'Print');
-      case '=': return scan.operator.call(this, ch, 'Assign');
-      case '+': return scan.operator.call(this, ch, 'Plus');
-      case '-': return scan.operator.call(this, ch, 'Minus')
+      case 'i': return scan.reserved(ch, 'Int');
+      case 'f': return scan.reserved(ch, 'Float');
+      case 'p': return scan.reserved(ch, 'Print');
+      case '=': return scan.operator(ch, 'Assign');
+      case '+': return scan.operator(ch, 'Plus');
+      case '-': return scan.operator(ch, 'Minus')
       /* Numbers */
       case '0': case '1': case '2': case '3': case '4':
       case '5': case '6': case '7': case '8': case '9':
-        return scan.number.call(this, ch);
+        return scan.number(ch);
       default:
         this.raise(`ACScanner [error]: Unexpected character "${this.peek()}"`);
+        this.next();
+        return new Token(TokenType.Invalid, ch, this.location().end());
         break;
     }
   }
-});
+}, scan);
 
 stream.forEach(i => console.log(i.toJSON()));
-
-console.log(`ACScanner [info]: time elapsed - ${scanner.info.time.elapsed} ms with ${scanner.info.errors.length} errors.`);
+console.log();
+console.log(`ACScanner [info]: time elapsed - ${scanner.info.time.elapsed} ms - with ${scanner.info.errors.length} errors.`);
+console.log();
+if(scanner.info.errors.length > 0) scanner.info.errors.forEach(error => {
+  console.log(error.message);
+  console.log(error.source);
+})
 
 const parser = new Parser(stream);
 let parse = {
@@ -88,7 +96,7 @@ let parse = {
   declarations: function () {
     console.log('procedure: declarations');
     const tokens = [
-      [TokenType.Reserved, 'f'],
+      [TokenType.Reserved, 'f'], 
       [TokenType.Reserved, 'i']
     ];
     if(this.matchAny(tokens)) {
@@ -147,9 +155,9 @@ let parse = {
       this.expect(TokenType.Reserved, 'p');
       this.expect(TokenType.Identifier);
     } else this.raise('AC [error]: Expected "Identifier" or "p (Operator)"');
-
+    
   },
-  /*
+  /*  
     Expr -> plus (operator) Val Expr
           | minus (operator) Val Expr
           | λ
@@ -178,7 +186,7 @@ let parse = {
    */
   val: function  () {
     console.log('procedure: val');
-    if(this.match(TokenType.Identifier))
+    if(this.match(TokenType.Identifier)) 
       this.expect(TokenType.Identifier);
     else if(this.match(Token.typeToString(TokenType.Literal, 'Int')))
       this.expect(Token.typeToString(TokenType.Literal, 'Int'));
@@ -188,13 +196,13 @@ let parse = {
   }
 };
 
-parse = _.mapValues(parse, value => value.bind(parser));
 console.log('source to parse: ', scanner.info.file.source);
+console.log();
 const tree = parser.parse(function(token){
   console.log('procedure: program');
   /* Begin program */
   const tokens = [
-      [TokenType.Reserved, 'f'],
+      [TokenType.Reserved, 'f'], 
       [TokenType.Reserved, 'i'],
       [TokenType.Identifier],
       [TokenType.Reserved, 'p'],
@@ -206,6 +214,7 @@ const tree = parser.parse(function(token){
     this.expect(TokenType.End);
   } else this.raise('AC [error]: Expected "f (Reserved)", "i (Reserved)", "Identifier", "p (Reserved)", or "End"');
   return;
-});
+}, parse);
+console.log();
 console.log(`ACParser [info]: elapsed time - ${parser.info.time.elapsed} ms with ${parser.info.errors.length} errors.`);
 console.log(parser.info.errors.length > 0 ? parser.info.errors : '');

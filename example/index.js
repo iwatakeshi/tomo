@@ -9,7 +9,6 @@ const Source = require('../').Source;
 const Scanner = require('../').Scanner;
 const Parser = require('../').Parser;
 const Stream = require('../').Stream;
-const _ = require('lodash');
 
 const isOperator = function (c) { return /[+\-*\/\^%=(),]/.test(c); },
   isDigit = function (c) { return /[0-9]/.test(c); },
@@ -54,7 +53,7 @@ const scanner = new Scanner(source);
 
 const stream = scanner.scan(function ACScanner(ch) {
   this.location().start();
-  if (this.isEOF()) return scan.eof.call(this, ch);
+  if (this.isEOF()) return scan.eof(ch);
   else {
     switch (ch.toLowerCase()) {
       /* Identifiers */
@@ -63,18 +62,18 @@ const stream = scanner.scan(function ACScanner(ch) {
       case 'l': case 'm': case 'n': case 'o': case 'r':
       case 's': case 't': case 'u': case 'v': case 'w':
       case 'x': case 'y': case 'z':
-        return scan.identifier.call(this, ch);
+        return scan.identifier(ch);
       /* Reserved */
-      case 'i': return scan.reserved.call(this, ch, 'Int');
-      case 'f': return scan.reserved.call(this, ch, 'Float');
-      case 'p': return scan.reserved.call(this, ch, 'Print');
-      case '=': return scan.operator.call(this, ch, 'Assign');
-      case '+': return scan.operator.call(this, ch, 'Plus');
-      case '-': return scan.operator.call(this, ch, 'Minus')
+      case 'i': return scan.reserved(ch, 'Int');
+      case 'f': return scan.reserved(ch, 'Float');
+      case 'p': return scan.reserved(ch, 'Print');
+      case '=': return scan.operator(ch, 'Assign');
+      case '+': return scan.operator(ch, 'Plus');
+      case '-': return scan.operator(ch, 'Minus')
       /* Numbers */
       case '0': case '1': case '2': case '3': case '4':
       case '5': case '6': case '7': case '8': case '9':
-        return scan.number.call(this, ch);
+        return scan.number(ch);
       default:
         this.raise(`ACScanner [error]: Unexpected character "${this.peek()}"`);
         this.next();
@@ -82,7 +81,7 @@ const stream = scanner.scan(function ACScanner(ch) {
         break;
     }
   }
-});
+}, scan);
 
 stream.forEach(i => console.log(i.toJSON()));
 console.log();
@@ -202,7 +201,6 @@ let parse = {
   }
 };
 
-parse = _.mapValues(parse, value => value.bind(parser));
 console.log('source to parse: ', scanner.info.file.source);
 console.log();
 const tree = parser.parse(function(token){
@@ -221,7 +219,7 @@ const tree = parser.parse(function(token){
     this.expect(TokenType.End);
   } else this.raise('AC [error]: Expected "f (Reserved)", "i (Reserved)", "Identifier", "p (Reserved)", or "End"');
   return;
-});
+}, parse);
 console.log();
 console.log(`ACParser [info]: elapsed time - ${parser.info.time.elapsed} ms with ${parser.info.errors.length} errors.`);
 console.log(parser.info.errors.length > 0 ? parser.info.errors : '');
