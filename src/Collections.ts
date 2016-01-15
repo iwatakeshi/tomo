@@ -21,9 +21,9 @@
 	OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 	THE SOFTWARE.
  */
-//shared pointer
+/** @private shared pointer */
 let i;
-//shortcuts
+/** @private shortcut */
 let defineProperty = Object.defineProperty, is = function(a, b) { return isNaN(a) ? isNaN(b) : a === b; };
 
 /**
@@ -32,7 +32,8 @@ let defineProperty = Object.defineProperty, is = function(a, b) { return isNaN(a
   */
 function createCollection(proto?, objectOnly?) {
   function Collection(a) {
-    if (!this || this.constructor !== Collection) return new Collection(a);
+    if (!(this instanceof arguments.callee))
+      throw new Error("Constructor called as a function");
     this._keys = [];
     this._values = [];
     this._itp = []; // iteration pointers
@@ -119,7 +120,7 @@ function sharedAdd(value) {
 
 function sharedClear() {
   (this._keys || 0).length =
-  this._values.length = 0;
+    this._values.length = 0;
 }
 
 /** keys, values, and iterate related methods */
@@ -196,15 +197,15 @@ module Collections {
         clear: sharedClear
       }).apply(this, arguments);
     }
-    public delete (key) {/* Implemented */}
-    public has (value) : any {/* Implemented */}
-    public get (key) : any {/* Implemented */}
-    public set (key, value) {/* Implemented */}
-    public keys () : any {/* Implemented */}
-    public values () : any {/* Implemented */}
-    public entries () : any {/* Implemented */}
-    public forEach (callback, thisArg) {/* Implemented */}
-    public clear () {/* Implemented */}
+    public delete(key) {/* Implemented */ }
+    public has(value): any {/* Implemented */ }
+    public get(key): any {/* Implemented */ }
+    public set(key, value) {/* Implemented */ }
+    public keys(): any {/* Implemented */ }
+    public values(): any {/* Implemented */ }
+    public entries(): any {/* Implemented */ }
+    public forEach(callback, thisArg) {/* Implemented */ }
+    public clear() {/* Implemented */ }
   }
 
   export class WeakMap {
@@ -222,11 +223,11 @@ module Collections {
         has: mapHas
       }, true).apply(this, arguments);
     }
-    public delete (key) {/* Implemented */}
-    public clear () {/* Implemented */}
-    public get (key)  : any {/* Implemented */}
-    public set (key, value) {/* Implemented */}
-    public has (value) {/* Implemented */}
+    public delete(key) {/* Implemented */ }
+    public clear() {/* Implemented */ }
+    public get(key): any {/* Implemented */ }
+    public set(key, value) {/* Implemented */ }
+    public has(value) {/* Implemented */ }
   }
 
   export class Set {
@@ -250,14 +251,14 @@ module Collections {
         forEach: sharedForEach
       }).apply(this, arguments);
     }
-    public delete () {/* Implemented */}
-    public has (value) : any {/* Implemented */}
-    public add(value) {/* Implemented */}
-    public keys () : any {/* Implemented */}
-    public values () : any {/* Implemented */}
-    public entries () : any {/* Implemented */}
-    public forEach (callback, thisArg) {/* Implemented */}
-    public clear () {/* Implemented */}
+    public delete() {/* Implemented */ }
+    public has(value): any {/* Implemented */ }
+    public add(value) {/* Implemented */ }
+    public keys(): any {/* Implemented */ }
+    public values(): any {/* Implemented */ }
+    public entries(): any {/* Implemented */ }
+    public forEach(callback, thisArg) {/* Implemented */ }
+    public clear() {/* Implemented */ }
   }
 
   export class WeakSet {
@@ -273,10 +274,10 @@ module Collections {
         has: setHas
       }, true).apply(this, arguments);
     }
-    public delete () {/* Implemented */}
-    public add(value) {/* Implemented */}
-    public clear () {/* Implemented */}
-    public has (value) : any {/* Implemented */}
+    public delete() {/* Implemented */ }
+    public add(value) {/* Implemented */ }
+    public clear() {/* Implemented */ }
+    public has(value): any {/* Implemented */ }
   }
 }
 

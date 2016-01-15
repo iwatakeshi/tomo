@@ -58,9 +58,9 @@ const isNode = (typeof module !== 'undefined' && module.exports);
     OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
     THE SOFTWARE.
  */
-//shared pointer
+/** @private shared pointer */
 var i;
-//shortcuts
+/** @private shortcut */
 var defineProperty = Object.defineProperty, is = function (a, b) { return isNaN(a) ? isNaN(b) : a === b; };
 /**
   * ES6 collection constructor
@@ -68,8 +68,8 @@ var defineProperty = Object.defineProperty, is = function (a, b) { return isNaN(
   */
 function createCollection(proto, objectOnly) {
     function Collection(a) {
-        if (!this || this.constructor !== Collection)
-            return new Collection(a);
+        if (!(this instanceof arguments.callee))
+            throw new Error("Constructor called as a function");
         this._keys = [];
         this._values = [];
         this._itp = []; // iteration pointers
@@ -482,9 +482,9 @@ var Utils_1 = require('./Utils');
 var Location_1 = require('./Location');
 var Stream_1 = require('./Stream');
 var Options_1 = require('./Options');
-/* @class {Scanner} - Creates a scanner object. */
+/** @class {Scanner} - Creates a scanner object. */
 var Scanner = (function () {
-    /*
+    /**
       @param {source: Source} - The source object.
       @param {options = Options.Scanner} - The options.
       @example: javascript {
@@ -512,7 +512,7 @@ var Scanner = (function () {
             errors: []
         };
     }
-    /*
+    /**
       @method {scan} - Calls the tokenizer as it scans through the source.
       @param {driver: (char: string | number) => Token} - The driver function which returns a token.
       @param {scanner?: object} - The scanner object to bind the context.
@@ -549,7 +549,7 @@ var Scanner = (function () {
         this.info.time.elapsed = (Date.now() - start);
         return new Stream_1["default"](this.tokens.slice());
     };
-    /*
+    /**
       @method {location} - Marks the locations.
       @return {
         {
@@ -585,7 +585,7 @@ var Scanner = (function () {
             }, line: line, column: column
         };
     };
-    /*
+    /**
       @return {string | number} - The previous character.
      */
     Scanner.prototype.previous = function () {
@@ -597,7 +597,7 @@ var Scanner = (function () {
         this.column = column;
         return this.source.charAt(this.position--);
     };
-    /*
+    /**
       @return {string | number} - The next character.
      */
     Scanner.prototype.next = function () {
@@ -620,7 +620,7 @@ var Scanner = (function () {
         }
         return this.source.charAt(this.position++);
     };
-    /*
+    /**
       @param {peek = 0} - The number of steps to peek backward.
       @return {string | number} - The previous character(s) to peek.
      */
@@ -628,7 +628,7 @@ var Scanner = (function () {
         if (peek === void 0) { peek = 0; }
         return this.source.charAt(this.position - peek);
     };
-    /*
+    /**
       @param {peek = 0} - The number of steps to peek forward.
       @return {string | number} - The next character(s) to peek.
      */
@@ -641,14 +641,14 @@ var Scanner = (function () {
         }
         return this.source.charAt(this.position + peek);
     };
-    /*
+    /**
       @method {isEOF} - Determines whether the current character is the end of file.
       @return {boolean} - The truth value.
      */
     Scanner.prototype.isEOF = function () {
         return !this.source.charAt(this.position) && this.position === this.source.length;
     };
-    /*
+    /**
       @method {raise} - Adds an error message into the errors stack.
       @param {message?: string} - The message to add to the error.
       @param {type?: string} - The type of error.
@@ -672,7 +672,7 @@ var Scanner = (function () {
             location: { line: this.location().line, column: this.location().column }
         });
     };
-    /*
+    /**
       @method {ignoreWhiteSpace} - Ignores the whitespaces in the source.
      */
     Scanner.prototype.ignoreWhiteSpace = function () {
@@ -698,7 +698,7 @@ var Scanner = (function () {
         }
         return;
     };
-    /*
+    /**
       @method {push} - Pushes the current charater and location into the history stack.
      */
     Scanner.prototype.push = function () {
@@ -709,7 +709,7 @@ var Scanner = (function () {
             }
         });
     };
-    /*
+    /**
       @method {pop} - Pops the previous charater and location from the history stack.
      */
     Scanner.prototype.pop = function () {

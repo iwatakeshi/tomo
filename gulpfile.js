@@ -7,7 +7,9 @@ const gulp = require('gulp'),
   minst = require('minimist'),
   gulpif = require('gulp-if'),
   ts = require('gulp-typescript'),
-  tsp = ts.createProject('tsconfig.json', { outDir: 'lib/' });
+  tsp = ts.createProject('tsconfig.json', { outDir: 'lib/' }),
+  typedoc = require('gulp-typedoc'),
+  ghPages = require('gulp-gh-pages');
 
 const remove = function (paths) {
   return del(paths || [
@@ -25,7 +27,9 @@ gulp.task('remove:lib', () => {
 gulp.task('remove:lib.src', ['copy:lib.src'], () => {
   return remove();
 })
-
+/**
+ * Copy the compiled javascript sources
+ */
 gulp.task('copy:src', () => {
   return gulp.src('src/*.js')
     .pipe(gulp.dest('lib/'));
@@ -35,31 +39,59 @@ gulp.task('copy:lib.src', ['compile'], () => {
   return gulp.src('lib/src/*.js')
     .pipe(gulp.dest('lib/'))
 })
-
+/**
+ * Clean up
+ */
 gulp.task('clean', ['copy'], () => {
   return gulp.src('src/*.js')
     .pipe(clean());
 });
-
+/**
+ * Compile the source
+ */
 gulp.task('compile', () => {
   return tsp.src()
     .pipe(ts(ts(tsp)))
     .js
     .pipe(gulp.dest('lib/'));
 });
-
+/**
+ * Compile the javascript source for the web
+ */
 gulp.task('browserify', ['remove:lib.src'], () => {
   return gulp.src('./index.js')
     .pipe(through.obj((file, enc, next) => browserify(file.path)
-    .bundle((error, result)=>{ file.contents = result; next(null, file); })))
+      .bundle((error, result) => { file.contents = result; next(null, file); })))
     .pipe(gulp.dest('./dist'));
 });
-
+/**
+ * Test the source
+ */
 gulp.task('test', () => {
   return gulp.src('tests/*.js', { read: false })
     .pipe(mocha({ reporter: 'spec' }));
 });
+/**
+ * Create the documentation
+ */
+gulp.task("typedoc", ['browserify'], function () {
+  return gulp
+    .src(["src/**/*.ts"])
+    .pipe(typedoc({
+      module: "commonjs",
+      target: "es5",
+      out: "documenation/",
+      name: "tomo"
+    }));
+});
+/**
+ * Publish the documentation
+ */
+gulp.task('ghpages', ['typedoc'], function() {
+  return gulp.src('./documentation/**/*')
+    .pipe(ghPages());
+});
 
 gulp.task('default', ['build']);
 
-gulp.task('build', ['compile', 'copy:lib.src', 'remove:lib.src', 'browserify']);
+gulp.task('build', ['compile', 'copy:lib.src', 'remove:lib.src', 'browserify', 'typedoc', 'ghpages']);

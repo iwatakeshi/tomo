@@ -4,7 +4,7 @@ import { Location, Range } from './Location';
 import Stream from './Stream';
 import Options from './Options';
 import Tokenize from './Token';
-/* @class {Scanner} - Creates a scanner object. */
+/** @class {Scanner} - Creates a scanner object. */
 class Scanner {
   /** The information about the Scanner */
   public info: { 
@@ -28,7 +28,7 @@ class Scanner {
   private column: number;
   /** The range in the source. */
   private range: Range;
-  /*
+  /**
     @param {source: Source} - The source object.
     @param {options = Options.Scanner} - The options.
     @example: javascript {
@@ -55,7 +55,7 @@ class Scanner {
       errors: []
     };
   }
-  /*
+  /**
     @method {scan} - Calls the tokenizer as it scans through the source.
     @param {driver: (char: string | number) => Token} - The driver function which returns a token.
     @param {scanner?: object} - The scanner object to bind the context.
@@ -91,7 +91,7 @@ class Scanner {
     this.info.time.elapsed = (Date.now() - start);
     return new Stream(this.tokens.slice());
   }
-  /*
+  /**
     @method {location} - Marks the locations.
     @return {
       { 
@@ -126,7 +126,7 @@ class Scanner {
       }, line, column
     };
   }
-  /*
+  /**
     @return {string | number} - The previous character.
    */
   public previous(): string | number {
@@ -137,7 +137,7 @@ class Scanner {
     this.column = column;
     return this.source.charAt(this.position--);
   }
-  /*
+  /**
     @return {string | number} - The next character.
    */
   public next(): string | number {
@@ -159,14 +159,14 @@ class Scanner {
     }
     return this.source.charAt(this.position++);
   }
-  /*
+  /**
     @param {peek = 0} - The number of steps to peek backward.
     @return {string | number} - The previous character(s) to peek.
    */
   public peekBack(peek = 0): string | number {
     return this.source.charAt(this.position - peek);
   }
-  /*
+  /**
     @param {peek = 0} - The number of steps to peek forward.
     @return {string | number} - The next character(s) to peek.
    */
@@ -178,14 +178,14 @@ class Scanner {
     }
     return this.source.charAt(this.position + peek);
   }
-  /*
+  /**
     @method {isEOF} - Determines whether the current character is the end of file.
     @return {boolean} - The truth value.
    */
   public isEOF() : boolean {
     return !this.source.charAt(this.position) && this.position === this.source.length;
   }
-  /*
+  /**
     @method {raise} - Adds an error message into the errors stack.
     @param {message?: string} - The message to add to the error.
     @param {type?: string} - The type of error.
@@ -207,7 +207,7 @@ class Scanner {
       location: { line: this.location().line, column: this.location().column }
     });
   }
-  /*
+  /**
     @method {ignoreWhiteSpace} - Ignores the whitespaces in the source.
    */
   private ignoreWhiteSpace() {
@@ -228,7 +228,7 @@ class Scanner {
     }
     return;
   }
-  /*
+  /**
     @method {push} - Pushes the current charater and location into the history stack.
    */
   private push() {
@@ -239,7 +239,7 @@ class Scanner {
       }
     });
   }
-  /*
+  /**  
     @method {pop} - Pops the previous charater and location from the history stack.
    */
   private pop() {
