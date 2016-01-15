@@ -72,7 +72,7 @@ gulp.task('test', () => {
     .pipe(mocha({ reporter: 'spec' }));
 });
 /**
- * Create the documentation
+ * Create the documenation
  */
 gulp.task("typedoc", ['browserify'], function () {
   return gulp
@@ -85,10 +85,10 @@ gulp.task("typedoc", ['browserify'], function () {
     }));
 });
 /**
- * Publish the documentation
+ * Publish the documenation
  */
 gulp.task('ghpages', ['typedoc'], function() {
-  return gulp.src('./documentation/**/*')
+  return gulp.src('./documenation/**/*')
     .pipe(ghPages());
 });
 

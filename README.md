@@ -53,6 +53,10 @@ npm i
 npm start
 ```
 
+## Documentation
+
+Documentation can be found at the [GitHub Page](http://iwatakeshi.github.io/tomo)
+
 ## Develop
 
 Contributions are gladly accepted. tomo uses Typescript and the source files
