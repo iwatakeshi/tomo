@@ -92,6 +92,6 @@ gulp.task('ghpages', ['typedoc'], function() {
     .pipe(ghPages());
 });
 
-gulp.task('default', ['build']);
-
-gulp.task('build', ['compile', 'copy:lib.src', 'remove:lib.src', 'browserify', 'typedoc', 'ghpages']);
+gulp.task('default', ['pre-build']);
+gulp.task('pre-build', ['compile', 'copy:lib.src', 'remove:lib.src', 'browserify']);
+gulp.task('build', ['build', 'typedoc', 'ghpages']);

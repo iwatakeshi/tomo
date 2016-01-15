@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "gulp && node --harmony_destructuring example/",
-    "test": "gulp && gulp test"
+    "test": "gulp pre-build && gulp test"
   },
   "repository": {
     "type": "git",
