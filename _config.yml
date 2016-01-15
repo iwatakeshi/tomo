@@ -1,1 +1,1 @@
-include: ['assets', 'classes', 'enums', 'modules']
+include: ['./assets/', './classes/', './enums/', './modules/']
