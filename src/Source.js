@@ -1,6 +1,5 @@
-"use strict";
 /* @class {Source} - Creates a source object. */
-var Source = (function () {
+class Source {
     /*
       @param {source?:string} - The source file.
       @param {options:any} - The options.
@@ -10,8 +9,7 @@ var Source = (function () {
         const source = new Source({source: '...', name: 'mysource.js'});
       }
      */
-    function Source(source, options) {
-        if (options === void 0) { options = { isCharCode: true }; }
+    constructor(source, options = { isCharCode: true }) {
         if (typeof source === 'string') {
             this.source = source || '';
             this.name = '';
@@ -28,19 +26,17 @@ var Source = (function () {
       @param {position:number} - The position in the source.
       @return {string | number} - The character in the source.
      */
-    Source.prototype.charAt = function (position) {
-        var ch = this.source[position];
+    charAt(position) {
+        const ch = this.source[position];
         return ch ? (this.options.isCharCode ? ch.charCodeAt(0) : ch) : undefined;
-    };
-    Source.prototype.toString = function () {
-        return "position: " + this.source;
-    };
-    Source.prototype.toJSON = function () {
+    }
+    toString() {
+        return `position: ${this.source}`;
+    }
+    toJSON() {
         return {
             source: this.source
         };
-    };
-    return Source;
-}());
-exports.__esModule = true;
-exports["default"] = Source;
+    }
+}
+export default Source;

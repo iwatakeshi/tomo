@@ -1,10 +1,9 @@
-"use strict";
-var Utils_1 = require('./Utils');
-var Location_1 = require('./Location');
-var Stream_1 = require('./Stream');
-var Options_1 = require('./Options');
+import Utils from './Utils';
+import { Location, Range } from './Location';
+import Stream from './Stream';
+import Options from './Options';
 /** @class {Scanner} - Creates a scanner object. */
-var Scanner = (function () {
+class Scanner {
     /**
       @param {source: Source} - The source object.
       @param {options = Options.Scanner} - The options.
@@ -12,8 +11,7 @@ var Scanner = (function () {
         const scanner = new Scanner(new Source('var x = 12;'));
       }
      */
-    function Scanner(source, options) {
-        if (options === void 0) { options = Options_1["default"].Scanner; }
+    constructor(source, options = Options.Scanner) {
         this.source = source;
         this.options = options;
         this.tokens = [];
@@ -21,7 +19,7 @@ var Scanner = (function () {
         this.position = 0;
         this.line = 1;
         this.column = 0;
-        this.range = new Location_1.Range();
+        this.range = new Range();
         this.info = {
             time: { elapsed: 0 },
             file: {
@@ -45,31 +43,31 @@ var Scanner = (function () {
         });
       }
     */
-    Scanner.prototype.scan = function (driver, scanner) {
+    scan(driver, scanner) {
         // Bind the context if the scanner object is provided
         if (scanner) {
-            for (var fn in scanner) {
+            for (let fn in scanner) {
                 if (scanner.hasOwnProperty(fn) && typeof scanner[fn] === 'function') {
                     scanner[fn] = scanner[fn].bind(this);
                 }
             }
         }
-        var start = Date.now();
+        let start = Date.now();
         this.ignoreWhiteSpace();
         while (this.peek() !== undefined) {
-            var token = driver.call(this, this.peek());
+            const token = driver.call(this, this.peek());
             if (token)
                 this.tokens.push(token);
             this.ignoreWhiteSpace();
         }
         if (this.peek() === undefined) {
-            var token = driver.call(this, this.peek());
+            const token = driver.call(this, this.peek());
             if (token)
                 this.tokens.push(token);
         }
         this.info.time.elapsed = (Date.now() - start);
-        return new Stream_1["default"](this.tokens.slice());
-    };
+        return new Stream(this.tokens.slice());
+    }
     /**
       @method {location} - Marks the locations.
       @return {
@@ -88,40 +86,39 @@ var Scanner = (function () {
         });
       }
     */
-    Scanner.prototype.location = function () {
-        var _this = this;
-        var _a = this, line = _a.line, column = _a.column;
+    location() {
+        const { line, column } = this;
         return {
-            start: function () {
-                _this.range = new Location_1.Range();
-                _this.range.start = new Location_1.Location(Number(line), Number(column));
+            start: () => {
+                this.range = new Range();
+                this.range.start = new Location(Number(line), Number(column));
             },
-            end: function () {
-                _this.range.end = new Location_1.Location(Number(line), Number(column));
-                return _this.range;
+            end: () => {
+                this.range.end = new Location(Number(line), Number(column));
+                return this.range;
             },
-            eof: function () {
-                _this.location().start();
-                return _this.location().end();
-            }, line: line, column: column
+            eof: () => {
+                this.location().start();
+                return this.location().end();
+            }, line, column
         };
-    };
+    }
     /**
       @return {string | number} - The previous character.
      */
-    Scanner.prototype.previous = function () {
+    previous() {
         if (this.stack.length === 0)
             return;
         this.pop();
-        var _a = this.stack[this.stack.length - 1], line = _a.line, column = _a.column;
+        const { line, column } = this.stack[this.stack.length - 1];
         this.line = line;
         this.column = column;
         return this.source.charAt(this.position--);
-    };
+    }
     /**
       @return {string | number} - The next character.
      */
-    Scanner.prototype.next = function () {
+    next() {
         // If we are at the end or over the length
         // of the source then return EOF
         if (this.position >= this.source.length) {
@@ -130,7 +127,7 @@ var Scanner = (function () {
         // If we reach a new line then
         // increment the line and reset the column
         // else increment the column
-        if (Utils_1["default"].Code.isLineTermintor(this.source.charAt(this.position))) {
+        if (Utils.Code.isLineTermintor(this.source.charAt(this.position))) {
             this.line++;
             this.column = 0;
             this.push();
@@ -140,45 +137,43 @@ var Scanner = (function () {
             this.push();
         }
         return this.source.charAt(this.position++);
-    };
+    }
     /**
       @param {peek = 0} - The number of steps to peek backward.
       @return {string | number} - The previous character(s) to peek.
      */
-    Scanner.prototype.peekBack = function (peek) {
-        if (peek === void 0) { peek = 0; }
+    peekBack(peek = 0) {
         return this.source.charAt(this.position - peek);
-    };
+    }
     /**
       @param {peek = 0} - The number of steps to peek forward.
       @return {string | number} - The next character(s) to peek.
      */
-    Scanner.prototype.peek = function (peek) {
-        if (peek === void 0) { peek = 0; }
+    peek(peek = 0) {
         // If we peek and the we reach the end or over
         // the length then return EOF
         if (this.position + peek >= this.source.length) {
             return undefined;
         }
         return this.source.charAt(this.position + peek);
-    };
+    }
     /**
       @method {isEOF} - Determines whether the current character is the end of file.
       @return {boolean} - The truth value.
      */
-    Scanner.prototype.isEOF = function () {
+    isEOF() {
         return !this.source.charAt(this.position) && this.position === this.source.length;
-    };
+    }
     /**
       @method {raise} - Adds an error message into the errors stack.
       @param {message?: string} - The message to add to the error.
       @param {type?: string} - The type of error.
      */
-    Scanner.prototype.raise = function (message, type) {
-        var source = '';
+    raise(message, type) {
+        let source = '';
         // Build the spaces and find the error
-        for (var i = 0; i < this.info.file.length; i++) {
-            var ch = this.info.file.source[i];
+        for (let i = 0; i < this.info.file.length; i++) {
+            const ch = this.info.file.source[i];
             if (ch === this.info.file.source[this.position])
                 source += '^';
             else
@@ -186,21 +181,21 @@ var Scanner = (function () {
         }
         source = this.info.file.source + '\n' + source;
         this.info.errors.push({
-            error: "Unexpected character: " + this.peek(),
+            error: `Unexpected character: ${this.peek()}`,
             type: type || 'ScanError',
             message: message || '',
             source: source,
             location: { line: this.location().line, column: this.location().column }
         });
-    };
+    }
     /**
       @method {ignoreWhiteSpace} - Ignores the whitespaces in the source.
      */
-    Scanner.prototype.ignoreWhiteSpace = function () {
+    ignoreWhiteSpace() {
         if (!this.options.ignore.whitespace) {
             if (this.options.override.whitespace &&
                 typeof this.options.override.whitespace === 'function') {
-                var isWhiteSpace = this.options.override.whitespace;
+                const isWhiteSpace = this.options.override.whitespace;
                 if (!this.peek())
                     this.next();
                 else
@@ -213,30 +208,28 @@ var Scanner = (function () {
             if (!this.peek())
                 this.next();
             else
-                while (Utils_1["default"].Code.isWhiteSpace(this.peek())) {
+                while (Utils.Code.isWhiteSpace(this.peek())) {
                     this.next();
                 }
         }
         return;
-    };
+    }
     /**
       @method {push} - Pushes the current charater and location into the history stack.
      */
-    Scanner.prototype.push = function () {
+    push() {
         this.stack.push({
             char: this.source.charAt(this.position),
             location: {
                 range: this.range
             }
         });
-    };
+    }
     /**
       @method {pop} - Pops the previous charater and location from the history stack.
      */
-    Scanner.prototype.pop = function () {
+    pop() {
         this.stack.pop();
-    };
-    return Scanner;
-}());
-exports.__esModule = true;
-exports["default"] = Scanner;
+    }
+}
+export default Scanner;

@@ -1,4 +1,3 @@
-"use strict";
 /*
   Copyright (C) 2015 Takeshi Iwana <iwatakeshi@gmail.com>
   Copyright (C) 2013-2014 Yusuke Suzuki <utatane.tea@gmail.com>
@@ -23,47 +22,45 @@
 */
 var Utils;
 (function (Utils) {
-    var Code = (function () {
-        function Code() {
-        }
+    class Code {
         /**
         * Determines whether a digit is a decimal.
         * @return {boolean}
         */
-        Code.isDecimalDigit = function (char) {
-            var ch = typeof char === 'number' ? char : char.charCodeAt(0);
+        static isDecimalDigit(char) {
+            const ch = typeof char === 'number' ? char : char.charCodeAt(0);
             // 0..9
             return 0x30 <= ch && ch <= 0x39;
-        };
+        }
         /**
         * Determines whether a digit is a hex.
         * @return {boolean}
         */
-        Code.isHexDigit = function (char) {
-            var ch = typeof char === 'number' ? char : char.charCodeAt(0);
+        static isHexDigit(char) {
+            const ch = typeof char === 'number' ? char : char.charCodeAt(0);
             // 0..9
             return 0x30 <= ch && ch <= 0x39 ||
                 // a..f
                 0x61 <= ch && ch <= 0x66 ||
                 // A..F
                 0x41 <= ch && ch <= 0x46;
-        };
+        }
         /**
         * Determines whether a digit is an octal.
         * @return {boolean}
         */
-        Code.isOctalDigit = function (char) {
-            var ch = typeof char === 'number' ? char : char.charCodeAt(0);
+        static isOctalDigit(char) {
+            const ch = typeof char === 'number' ? char : char.charCodeAt(0);
             // 0..7
             return ch >= 0x30 && ch <= 0x37;
-        };
+        }
         /**
         * Determines whether a character is a whitespace.
         * @return {boolean
         */
-        Code.isWhiteSpace = function (char) {
-            var ch = typeof char === 'number' ? char : char.charCodeAt(0);
-            var whitespaces = [
+        static isWhiteSpace(char) {
+            const ch = typeof char === 'number' ? char : char.charCodeAt(0);
+            const whitespaces = [
                 0x1680, 0x180E,
                 0x2000, 0x2001, 0x2002, 0x2003, 0x2004, 0x2005, 0x2006, 0x2007, 0x2008, 0x2009, 0x200A,
                 0x202F, 0x205F,
@@ -72,18 +69,16 @@ var Utils;
             ];
             return ch === 0x20 || ch === 0x09 || ch === 0x0B || ch === 0x0C || ch === 0xA0 ||
                 ch >= 0x1680 && whitespaces.indexOf(ch) >= 0;
-        };
+        }
         /**
         * Determines whether a character is a line terminator
         * @return {boolean}
         */
-        Code.isLineTermintor = function (char) {
-            var ch = typeof char === 'number' ? char : char.charCodeAt(0);
+        static isLineTermintor(char) {
+            const ch = typeof char === 'number' ? char : char.charCodeAt(0);
             return ch === 0x0A || ch === 0x0D || ch === 0x2028 || ch === 0x2029;
-        };
-        return Code;
-    }());
+        }
+    }
     Utils.Code = Code;
 })(Utils || (Utils = {}));
-exports.__esModule = true;
-exports["default"] = Utils;
+export default Utils;

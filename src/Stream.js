@@ -1,12 +1,10 @@
-"use strict";
-var Token_1 = require('./Token');
+import Tokenize from './Token';
 /* @class {Stream} - Creates a stream object. */
-var Stream = (function () {
+class Stream {
     /*
       @param {tokens: Array<class Token>} - The scanned tokens.
     */
-    function Stream(tokens) {
-        if (tokens === void 0) { tokens = []; }
+    constructor(tokens = []) {
         this.stream = tokens;
         this.length = tokens.length;
         this.position = 0;
@@ -15,48 +13,46 @@ var Stream = (function () {
       @method {previous} - Moves to the previous token.
       @return {class Token} - The previous token.
     */
-    Stream.prototype.previous = function () {
+    previous() {
         return this.stream[--this.position];
-    };
+    }
     /*
       @method {next} - Moves to the next token.
       @return {class Token} - The next token.
     */
-    Stream.prototype.next = function () {
+    next() {
         if (this.position >= this.stream.length)
-            return new Token_1["default"].Token(Token_1["default"].TokenType.End);
+            return new Tokenize.Token(Tokenize.TokenType.End);
         return this.stream[this.position++];
-    };
+    }
     /*
      @method {peek} - Looks ahead by n tokens.
      @param {n = 0} - The number of peek.
      @return {class Token} - The look-ahead token.
     */
-    Stream.prototype.peek = function (n) {
-        if (n === void 0) { n = 0; }
+    peek(n = 0) {
         return this.stream[this.position + n];
-    };
+    }
     /*
       @method {peekBack} - Looks behind by n tokens.
       @param {n = 0} - The number of peek-back.
       @return {class Token} - The look-behind token.
     */
-    Stream.prototype.peekBack = function (n) {
-        if (n === void 0) { n = 0; }
+    peekBack(n = 0) {
         return this.stream[this.position - n];
-    };
+    }
     /*
       @method {current}
       @return {class Token} - The current token.
     */
-    Stream.prototype.current = function () {
+    current() {
         return this.stream[this.position];
-    };
+    }
     /*
       @method {forEach} - Loops through the tokens in the stream.
     */
-    Stream.prototype.forEach = function (callback, thisArg) {
-        var T, k, O = this.stream.slice(), len = O.length;
+    forEach(callback, thisArg) {
+        let T, k, O = this.stream.slice(), len = O.length;
         if (typeof callback !== 'function') {
             throw new TypeError(callback + ' is not a function');
         }
@@ -64,15 +60,13 @@ var Stream = (function () {
             T = thisArg;
         k = 0;
         while (k < len) {
-            var kValue = void 0;
+            let kValue;
             if (k in O) {
                 kValue = O[k];
                 callback.call(T, kValue, k, O);
             }
             k++;
         }
-    };
-    return Stream;
-}());
-exports.__esModule = true;
-exports["default"] = Stream;
+    }
+}
+export default Stream;

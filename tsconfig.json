@@ -1,7 +1,7 @@
 {
     "compilerOptions": {
-        "target": "es5",
-        "module": "umd",
+        "target": "es6",
+        "module": "commonjs",
         "moduleResolution": "node",
         "isolatedModules": false,
         "jsx": "react",
@@ -22,13 +22,17 @@
     ],
     "files": [
         "./src/Collections.ts",
+        "./src/Location.ts",
+        "./src/Node.ts",
+        "./src/Options.ts",
         "./src/Parser.ts",
         "./src/Scanner.ts",
         "./src/Source.ts",
+        "./src/Stream.ts",
         "./src/Token.ts",
-        "./src/Utils.ts",
-        "./src/Location.ts",
-        "./src/Options.ts",
-        "./src/Stream.ts"
-    ]
+        "./src/Utils.ts"
+    ],
+    "atom": {
+        "rewriteTsconfig": true
+    }
 }
