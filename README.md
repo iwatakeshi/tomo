@@ -8,7 +8,7 @@ Note: Not production ready!
 [![npm](https://img.shields.io/npm/v/tomo.svg)](https://www.npmjs.com/package/tomo)
 [![npm](https://img.shields.io/npm/dt/tomo.svg)](https://www.npmjs.com/package/tomo)
 [![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://raw.githubusercontent.com/iwatakeshi/tomo/master/LICENSE.md)
-[![Join the chat at https://gitter.im/iwatakeshi/tomo](https://badges.gitter.im/iwatakeshi/tomo.svg)](https://gitter.im/iwatakeshi/tomo?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+[![Join the chat at https://gitter.im/iwatakeshi/tomo](https://badges.gitter.im/iwatakeshi/tomo.svg)](https://gitter.im/iwatakeshi/tomo?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge) [![Greenkeeper badge](https://badges.greenkeeper.io/iwatakeshi/tomo.svg)](https://greenkeeper.io/)
 
 ## Background
 
